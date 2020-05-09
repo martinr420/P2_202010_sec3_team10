@@ -1,3 +1,5 @@
-Lina Maria Sierra Vidal
+# T2_202010
+Lina Maria Sierra Vidal 
 201914522
-Semestre 3
+Martin Restrepo 
+201914078
