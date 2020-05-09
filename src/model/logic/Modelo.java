@@ -1,72 +1,80 @@
 package model.logic;
 
-import model.data_structures.ArregloDinamico;
-import model.data_structures.IArregloDinamico;
+import java.io.*;
+
+import model.data_structures.GrafoNoDirigido;
+import model.data_structures.noExisteObjetoException;
 
 /**
  * Definicion del modelo del mundo
  *
  */
 public class Modelo {
-	/**
-	 * Atributos del modelo del mundo
-	 */
-	private IArregloDinamico datos;
 	
-	/**
-	 * Constructor del modelo del mundo con capacidad predefinida
-	 */
+	private GrafoNoDirigido<Integer, String> grafo;
+	private Haversine haversine;
+	
+	
 	public Modelo()
 	{
-		datos = new ArregloDinamico(7);
+		grafo = new GrafoNoDirigido<Integer,String>(228046);
+		haversine = new Haversine();
 	}
 	
-	/**
-	 * Constructor del modelo del mundo con capacidad dada
-	 * @param tamano
-	 */
-	public Modelo(int capacidad)
+	public void cargarDatos() throws noExisteObjetoException, IOException
 	{
-		datos = new ArregloDinamico(capacidad);
+		String pathVertex = "./data/bogota_vertices.txt";
+	    String pathEdge = "./data/bogota_arcos.txt";
+	    
+	    
+	    
+	    	BufferedReader brVertex = new BufferedReader(new FileReader(pathVertex));
+	    	BufferedReader brEdge = new BufferedReader(new FileReader(pathEdge));
+	    String cadenaVertex;
+	    	while(( cadenaVertex = brVertex.readLine()) != null)
+	    	{
+	    		String[] partes = cadenaVertex.split(",");
+	    		
+	    			int idVertex = Integer.parseInt(partes[0]);
+	    			String infoVertex = partes[1] +"/" + partes[2];
+	    			grafo.addVertex(idVertex, infoVertex);
+	    		
+	    	}
+	    	brVertex.close();
+	    	
+	    	String cadenaEdge;
+	    	while((cadenaEdge = brEdge.readLine()) != null)
+	    	{
+	    		String[] partes = cadenaEdge.split(" ");
+	    		if (!partes[0].contains("#"))
+	    		{
+	    			for (int i = 1; i < partes.length ; i++)
+	    			{
+	    				
+	    				String inicio = (String) grafo.getInfoVertex(Integer.parseInt(partes[0]));
+	    				String fin = (String) grafo.getInfoVertex(Integer.parseInt(partes[i]));
+	    				
+	    				String[] partesInicio = inicio.split("/");
+	    				String[] partesFinal = fin.split("/");
+                        double startLat = Double.parseDouble(partesInicio[1]);
+                        double startLong = Double.parseDouble(partesInicio[0]);
+                        double endLat = Double.parseDouble(partesFinal[1]);
+                        double endLong = Double.parseDouble(partesFinal[0]);
+						double peso = Haversine.distance(startLat, startLong, endLat, endLong);
+	    				grafo.addEdge(Integer.parseInt(partes[0]), Integer.parseInt(partes[i]), peso);
+	    			}
+	    		}
+	    	}
+	    	
+	    	brEdge.close();
+	    	
+	    
+	    
+	   
+	    
+	    System.out.println("La cantidad de vertices es: " + grafo.cantidadVertices());
+		System.out.println("La cantidad arcos es: " + grafo.cantidadArcos());
 	}
 	
-	/**
-	 * Servicio de consulta de numero de elementos presentes en el modelo 
-	 * @return numero de elementos presentes en el modelo
-	 */
-	public int darTamano()
-	{
-		return datos.darTamano();
-	}
-
-	/**
-	 * Requerimiento de agregar dato
-	 * @param dato
-	 */
-	public void agregar(String dato)
-	{	
-		datos.agregar(dato);
-	}
 	
-	/**
-	 * Requerimiento buscar dato
-	 * @param dato Dato a buscar
-	 * @return dato encontrado
-	 */
-	public String buscar(String dato)
-	{
-		return datos.buscar(dato);
-	}
-	
-	/**
-	 * Requerimiento eliminar dato
-	 * @param dato Dato a eliminar
-	 * @return dato eliminado
-	 */
-	public String eliminar(String dato)
-	{
-		return datos.eliminar(dato);
-	}
-
-
 }
