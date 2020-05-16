@@ -7,6 +7,7 @@ import edu.princeton.cs.algs4.DepthFirstSearch;
 import edu.princeton.cs.algs4.Edge;
 import edu.princeton.cs.algs4.EdgeWeightedGraph;
 import edu.princeton.cs.algs4.SeparateChainingHashST;
+import edu.princeton.cs.algs4.*;
 
 public class GrafoNoDirigido <K,V>
 {
