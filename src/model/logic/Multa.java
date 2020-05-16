@@ -2,6 +2,7 @@ package model.logic;
 
 import java.util.Date;
 
+<<<<<<< HEAD
 public class Multa implements Comparable<Multa>
 {
 
@@ -30,12 +31,37 @@ public class Multa implements Comparable<Multa>
 	private Geo geo;
 	
 
+=======
+public class Multa implements Comparable<Multa>{
+
+	public long id;
+
+	public Date fecha;
+
+	public String medioDete;
+
+	public String vehiculo;
+
+	public String servicio;
+
+	public String infraccion;
+
+	public String descripcion;
+
+	public String localidad;
+
+	public Geo geo;
+>>>>>>> master
 
 
 
 	public Multa(long id, Date fecha, String medioDete, String vehiculo, String servicio, String infraccion,
+<<<<<<< HEAD
 			String descripcion, String localidad, String municipio, Geo geo) 
 	{
+=======
+			String descripcion, String localidad, Geo geo) {
+>>>>>>> master
 		super();
 		this.id = id;
 		this.fecha = fecha;
@@ -45,23 +71,36 @@ public class Multa implements Comparable<Multa>
 		this.infraccion = infraccion;
 		this.descripcion = descripcion;
 		this.localidad = localidad;
+<<<<<<< HEAD
 		this.municipio = municipio;
 		this.geo = geo;
 		
 		
 		
 		
+=======
+		this.geo = geo;
+>>>>>>> master
 	}
 
 	public String toString()
 	{
 
+<<<<<<< HEAD
 		String msj = "El id es "+ id +" la fecha del comparendo "+ fecha 
+=======
+		String msj ="El id es "+ id +" la fecha del comparendo "+ fecha 
+>>>>>>> master
 				+" el medio de detencion es "+ medioDete +
 				" el vehiculo es "+ vehiculo +" el tipo de servicio es " + servicio + 
 				" la infraccion es " + infraccion + 
 				" la descripcion de lo sucedido es " + descripcion + " la localidad es "+
+<<<<<<< HEAD
 				localidad + " el municipio es " + municipio + " la geografira es "+ geo.toString();
+=======
+				localidad +" la geografira es "+ geo.toString();
+
+>>>>>>> master
 
 		return msj;
 	}
@@ -138,6 +177,7 @@ public class Multa implements Comparable<Multa>
 		this.geo = geo;
 	}
 
+<<<<<<< HEAD
 	public String getMunicipio()
 	{
 		return municipio;
@@ -158,6 +198,80 @@ public class Multa implements Comparable<Multa>
 		}
 		
 		return comparacion;
+=======
+	public int compararComperndos(Multa pMulta)
+	{
+		return 0;
+	}
+
+	public boolean estaDentroDeFecha(String f1, String f2)
+	{
+		return false;
+	}
+
+	public int compareTo(Multa pMulta) {
+
+		int num;
+
+		if(fecha.compareTo(pMulta.getFecha()) > 0)
+		{
+			num = 1;
+		}
+		else if(fecha.compareTo(pMulta.fecha) < 0)
+		{
+			num = -1;
+		}
+		else
+		{
+			if (id - pMulta.id < 0)
+			{
+				num = -1;
+			}
+			else 
+			{
+				num = 1;
+			}
+		}
+		// TODO Auto-generated method stub
+		return num;
+	}
+
+	public int compareToInfraccion(Multa pMulta)
+	{
+		int num;
+		if(infraccion.compareTo(pMulta.getInfraccion()) < 0)
+		{
+			num = -1;
+		}
+		else if(infraccion.compareTo(pMulta.getInfraccion()) > 0 )
+		{
+			num = 1;
+		}
+		else
+		{
+			num = 0;
+		}
+		return num;
+	}
+	
+	public int compareToLocalidad(Multa pMulta)
+	{
+		int num;
+		
+		if(localidad.compareTo(pMulta.getLocalidad()) < 0)
+		{
+			num = -1;
+		}
+		else if(localidad.compareTo(pMulta.getLocalidad()) > 0)
+		{
+			num = 1;
+		}
+		else
+		{
+			num = 0;
+		}
+		return num;
+>>>>>>> master
 	}
 
 }

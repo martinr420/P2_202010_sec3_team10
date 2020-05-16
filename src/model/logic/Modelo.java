@@ -2,7 +2,8 @@ package model.logic;
 
 import java.io.*;
 
-import model.data_structures.GrafoNoDirigido;
+import model.data_structures.*;
+import model.data_structures.LinkedQueue;
 import model.data_structures.noExisteObjetoException;
 
 /**
@@ -13,7 +14,13 @@ public class Modelo {
 	
 	private GrafoNoDirigido<Integer, String> grafo;
 	private Haversine haversine;
-	
+	private LinkedQueue linkedQueue1A;
+	private MaxPQ<Integer> maxPQ2A;
+	private LinkedQueue linkedQueue2A;
+	private MaxPQ<Integer> maxPQ3A;
+	private AVLTreeST<Integer, String> arbol1C;
+	private AVLTreeST<Integer, String> arbol2C;
+	private int n;
 	
 	public Modelo()
 	{
@@ -76,5 +83,33 @@ public class Modelo {
 		System.out.println("La cantidad arcos es: " + grafo.cantidadArcos());
 	}
 	
+	private void R1A (int latitudIni, int longitudIni, int latitudFin, int longitudFin)
+	{
+		
+	}
 	
+	private void R2A(int m)
+	{
+		
+	}
+	
+	private void R1B(int latitudIni, int longitudIni, int latitudFin, int longitudFin)
+	{
+		
+	}
+	
+	private void R2B (int m)
+	{
+		
+	}
+	
+	private void R1C (int m)
+	{
+		
+	}
+	
+	private void R2C()
+	{
+		
+	}
 }
