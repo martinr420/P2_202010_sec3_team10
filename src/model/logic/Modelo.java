@@ -14,12 +14,7 @@ public class Modelo {
 	
 	private GrafoNoDirigido<Integer, String> grafo;
 	private Haversine haversine;
-	private LinkedQueue linkedQueue1A;
-	private MaxPQ<Integer> maxPQ2A;
-	private LinkedQueue linkedQueue2A;
-	private MaxPQ<Integer> maxPQ3A;
-	private AVLTreeST<Integer, String> arbol1C;
-	private AVLTreeST<Integer, String> arbol2C;
+
 	private int n;
 	
 	public Modelo()
