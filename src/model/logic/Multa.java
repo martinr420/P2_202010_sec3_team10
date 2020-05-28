@@ -2,30 +2,41 @@ package model.logic;
 
 import java.util.Date;
 
-public class Multa implements Comparable<Multa>{
+public class Multa implements Comparable<Multa>
+{
 
-	public long id;
+	//CONSTANTES
+	
+	
+	//Atributos
+	private long id;
 
-	public Date fecha;
+	private Date fecha;
 
-	public String medioDete;
+	private String medioDete;
 
-	public String vehiculo;
+	private String vehiculo;
 
-	public String servicio;
+	private String servicio;
 
-	public String infraccion;
+	private String infraccion;
 
-	public String descripcion;
+	private String descripcion;
 
-	public String localidad;
+	private String localidad;
 
-	public Geo geo;
+	private String municipio;
+
+	private Geo geo;
+	
+	private int numeroDiasEspera;
+
 
 
 
 	public Multa(long id, Date fecha, String medioDete, String vehiculo, String servicio, String infraccion,
-			String descripcion, String localidad, Geo geo) {
+			String descripcion, String localidad, String municipio, Geo geo) 
+	{
 		super();
 		this.id = id;
 		this.fecha = fecha;
@@ -35,19 +46,23 @@ public class Multa implements Comparable<Multa>{
 		this.infraccion = infraccion;
 		this.descripcion = descripcion;
 		this.localidad = localidad;
+		this.municipio = municipio;
 		this.geo = geo;
+		this.numeroDiasEspera = 0;
+		
+		
+		
 	}
 
 	public String toString()
 	{
 
-		String msj ="El id es "+ id +" la fecha del comparendo "+ fecha 
+		String msj = "El id es "+ id +" la fecha del comparendo "+ fecha 
 				+" el medio de detencion es "+ medioDete +
 				" el vehiculo es "+ vehiculo +" el tipo de servicio es " + servicio + 
 				" la infraccion es " + infraccion + 
 				" la descripcion de lo sucedido es " + descripcion + " la localidad es "+
-				localidad +" la geografira es "+ geo.toString();
-
+				localidad + " el municipio es " + municipio + " la geografira es "+ geo.toString();
 
 		return msj;
 	}
@@ -124,78 +139,35 @@ public class Multa implements Comparable<Multa>{
 		this.geo = geo;
 	}
 
-	public int compararComperndos(Multa pMulta)
+	public String getMunicipio()
 	{
-		return 0;
+		return municipio;
 	}
 
-	public boolean estaDentroDeFecha(String f1, String f2)
+	public int getNumeroDiasEspera()
 	{
-		return false;
-	}
-
-	public int compareTo(Multa pMulta) {
-
-		int num;
-
-		if(fecha.compareTo(pMulta.getFecha()) > 0)
-		{
-			num = 1;
-		}
-		else if(fecha.compareTo(pMulta.fecha) < 0)
-		{
-			num = -1;
-		}
-		else
-		{
-			if (id - pMulta.id < 0)
-			{
-				num = -1;
-			}
-			else 
-			{
-				num = 1;
-			}
-		}
-		// TODO Auto-generated method stub
-		return num;
-	}
-
-	public int compareToInfraccion(Multa pMulta)
-	{
-		int num;
-		if(infraccion.compareTo(pMulta.getInfraccion()) < 0)
-		{
-			num = -1;
-		}
-		else if(infraccion.compareTo(pMulta.getInfraccion()) > 0 )
-		{
-			num = 1;
-		}
-		else
-		{
-			num = 0;
-		}
-		return num;
+		return numeroDiasEspera;
 	}
 	
-	public int compareToLocalidad(Multa pMulta)
+	public void setNumeroDiasEspera(int numeroDiasEspera)
 	{
-		int num;
+		this.numeroDiasEspera = numeroDiasEspera;
+	}
+	@Override
+	public int compareTo(Multa o)
+	{
+		int comparacion = 0;
 		
-		if(localidad.compareTo(pMulta.getLocalidad()) < 0)
+		if(id > o.getId())
 		{
-			num = -1;
+			comparacion = 1;
 		}
-		else if(localidad.compareTo(pMulta.getLocalidad()) > 0)
+		else if( id < o.getId())
 		{
-			num = 1;
+			comparacion = -1;
 		}
-		else
-		{
-			num = 0;
-		}
-		return num;
+		
+		return comparacion;
 	}
 
 }
