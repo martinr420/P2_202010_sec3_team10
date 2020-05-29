@@ -10,6 +10,7 @@ public class Vertice implements Comparable<Vertice>
 	private int key;
 	private LatLng val;
 	private Queue<Multa> comparendos;
+	private Queue<Estacion> estaciones;
 	
 	public int getKey() {
 		return key;
@@ -27,6 +28,8 @@ public class Vertice implements Comparable<Vertice>
 		super();
 		this.key = key;
 		this.val = val;
+		comparendos = new Queue<>();
+		estaciones = new Queue<>();
 	}
 	public double getLat()
 	{
@@ -44,6 +47,15 @@ public class Vertice implements Comparable<Vertice>
 	public Queue<Multa> darComparendos()
 	{
 		return comparendos;
+	}
+	
+	public void agregarEstacion(Estacion item)
+	{
+		estaciones.enqueue(item);
+	}
+	public Queue<Estacion> darEstaciones()
+	{
+		return estaciones;
 	}
 
 	

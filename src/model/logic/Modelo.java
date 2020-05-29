@@ -47,7 +47,8 @@ public class Modelo {
 	private final static int N = 20;
 ;
 	private Haversine haversine;
-	private MaxPQ<Estacion> qEstacion;
+	private MaxPQ<Estacion> pqEstacion;
+	private Queue<Estacion> estaciones;
 	private MaxPQ<Multa> pqMultas;
 	private Queue<Multa> multas;
 	private Grafo<Vertice> grafo;
@@ -59,10 +60,11 @@ public class Modelo {
 	{
 		grafo = new Grafo<Vertice>(false);
 		haversine = new Haversine();
-		qEstacion = new MaxPQ<Estacion>();
+		pqEstacion = new MaxPQ<Estacion>();
 		pqMultas = new MaxPQ<Multa>();
 		haversine = new Haversine();
 		multas = new Queue<>();
+		estaciones = new Queue<>();
 
 		enteroAVertice = new Vertice[228050];
 
@@ -166,7 +168,8 @@ public class Modelo {
 				String local = objeto.get("EPOIULOCAL").getAsString();
 
 				Estacion estacion = new Estacion(lat, lon, id, nombre, telefono, dir, descripcion, servicio, horario, local);
-				qEstacion.insert(estacion);
+				pqEstacion.insert(estacion);
+				estaciones.enqueue(estacion);
 
 			}
 
@@ -279,9 +282,9 @@ public class Modelo {
 		Multa multaMayor = pqMultas.delMax();
 		System.out.println("La multa con el mayor id es: " + multaMayor.toString());
 		
-		System.out.println("Total de estaciones de policia del archivo es: " + qEstacion.size());
+		System.out.println("Total de estaciones de policia del archivo es: " + pqEstacion.size());
 		
-		Estacion mayorEstacion = qEstacion.delMax();
+		Estacion mayorEstacion = pqEstacion.delMax();
 		System.out.println(mayorEstacion.toString());
 		
 		System.out.println("El total de vertices es  " + grafo.V());
@@ -342,6 +345,16 @@ public class Modelo {
 			grafo.setCantidadMultasEdge(e, totalMultas);
 		}
 	}
+	
+	public void adicionarEstacionesAlGrafo()
+	{
+		for(Estacion actual : estaciones)
+		{
+			
+		}
+	}
+	
+	
 	
 
 	
