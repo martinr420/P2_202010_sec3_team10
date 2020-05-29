@@ -1,12 +1,20 @@
 
 package model.data_structures;
 /** Generic Directed Weighted Graph with Dijkstra's Shortest Path Algorithm
+ * by /u/Philboyd_Studge
+ * for /r/javaexamples
+ */
+
+/* Generic Directed Weighted Graph with Dijkstra's Shortest Path Algorithm
 * by /u/Philboyd_Studge
 * for /r/javaexamples
 */
 
 import java.util.List;
 import java.util.Queue;
+
+import model.logic.Vertice;
+
 import java.util.PriorityQueue;
 import java.util.Deque;
 import java.util.LinkedList;
@@ -24,23 +32,22 @@ import java.util.Collections;
  *
  * @author /u/Philboyd_Studge
  */
-public class Grafo<T extends Comparable<T>, V>
+public class Grafo<T extends Comparable<T>>
 {
 	public enum State { UNVISITED, VISITED, COMPLETE };
 
-	private DynamicArray<Vertex> vertices;
-	private DynamicArray<Edge> edges;
-	private boolean dirigido;
+	private ArrayList<Vertex> vertices;
+	private ArrayList<Edge> edges;
+	private boolean esDirigido;
 
 	/**
 	 * Default Constructor
 	 */
 	public Grafo(boolean esDirigido)
 	{
-		vertices = new DynamicArray<>();
-		edges = new DynamicArray<>();
-		dirigido = esDirigido;
-		
+		vertices = new ArrayList<>();
+		edges = new ArrayList<>();
+		this.esDirigido = esDirigido;
 	}
 
 	/**
@@ -48,9 +55,8 @@ public class Grafo<T extends Comparable<T>, V>
 	 * @param from Value for Vertex 1
 	 * @param to Value for Vertex 2
 	 * @param cost Cost or weight of edge
-	 * @throws Exception 
 	 */
-	public void addEdge(T from, T to, double cost) throws Exception
+	public void addEdge(T from, T to, double cost)
 	{
 		Edge temp = findEdge(from, to);
 		if (temp != null)
@@ -67,19 +73,21 @@ public class Grafo<T extends Comparable<T>, V>
 		}
 	}
 	
-	public int V()
+	
+	public void addVertex(T key)
 	{
-		return vertices.size();
+		Vertex v = new Vertex(key);
+		
+		vertices.add(v);
 	}
 	
 	public int E()
 	{
 		return edges.size();
 	}
-	public void addVertex(T key, V value)
+	public int V()
 	{
-		Vertex v = new Vertex(key, value);
-		vertices.add(v);	
+		return vertices.size();
 	}
 
 	/**
@@ -89,9 +97,9 @@ public class Grafo<T extends Comparable<T>, V>
 	 */
 	private Vertex findVertex(T v)
 	{
-		for (Vertex each : vertices.darArreglo())
+		for (Vertex each : vertices)
 		{
-			if (each.key.compareTo(v)==0)
+			if (each.value.compareTo(v)==0)
 				return each;
 		}
 		return null;
@@ -106,7 +114,7 @@ public class Grafo<T extends Comparable<T>, V>
 	 */
 	private Edge findEdge(Vertex v1, Vertex v2)
 	{
-		for (Edge each : edges.darArreglo())
+		for (Edge each : edges)
 		{
 			if (each.from.equals(v1) && each.to.equals(v2))
 			{
@@ -124,9 +132,9 @@ public class Grafo<T extends Comparable<T>, V>
 	 */
 	private Edge findEdge(T from, T to)
 	{
-		for (Edge each : edges.darArreglo())
+		for (Edge each : edges)
 		{
-			if (each.from.key.equals(from) && each.to.key.equals(to))
+			if (each.from.value.equals(from) && each.to.value.equals(to))
 			{
 				return each;
 			}
@@ -139,7 +147,7 @@ public class Grafo<T extends Comparable<T>, V>
 	 */
 	private void clearStates()
 	{
-		for (Vertex each : vertices.darArreglo())
+		for (Vertex each : vertices)
 		{
 			each.state = State.UNVISITED;
 		}
@@ -151,7 +159,7 @@ public class Grafo<T extends Comparable<T>, V>
 	 */
 	public boolean isConnected()
 	{
-		for (Vertex each : vertices.darArreglo())
+		for (Vertex each : vertices)
 		{
 			if (each.state != State.COMPLETE)
 				return false;
@@ -334,7 +342,7 @@ public class Grafo<T extends Comparable<T>, V>
 		// loop through the vertices from end target 
 		for (Vertex v = target; v !=null; v = v.previous)
 		{
-			path.add(v.key + " : cost : " + v.minDistance);
+			path.add(v.value + " : cost : " + v.minDistance);
 		}
 
 		// flip the list
@@ -347,7 +355,7 @@ public class Grafo<T extends Comparable<T>, V>
 	 */
 	private void resetDistances()
 	{
-		for (Vertex each : vertices.darArreglo())
+		for (Vertex each : vertices)
 		{
 			each.minDistance = Integer.MAX_VALUE;
 			each.previous = null;
@@ -379,7 +387,7 @@ public class Grafo<T extends Comparable<T>, V>
 	public String toString()
 	{
 		String retval = "";
-		for (Vertex each : vertices.darArreglo())
+		for (Vertex each : vertices)
 		{
 			retval += each.toString() + "\n";
 		}
@@ -393,7 +401,7 @@ public class Grafo<T extends Comparable<T>, V>
 	public String edgesToString()
 	{
 		String retval = "";
-		for (Edge each : edges.darArreglo())
+		for (Edge each : edges)
 		{
 			retval += each + "\n";
 		}
@@ -403,9 +411,7 @@ public class Grafo<T extends Comparable<T>, V>
 
 	class Vertex implements Comparable<Vertex>
 	{
-		T key;
-		V val;
-		
+		T value;
 
 		// variables for Dijkstra Tree
 		Vertex previous = null;
@@ -417,12 +423,11 @@ public class Grafo<T extends Comparable<T>, V>
 
 		/**
 		 * Creates new Vertex with value T
-		 * @param key T
+		 * @param value T
 		 */
-		public Vertex(T key, V val)
+		public Vertex(T value)
 		{
-			this.key = key;
-			this.val = val;
+			this.value = value;
 			incoming = new ArrayList<>();
 			outgoing = new ArrayList<>();
 			state = State.UNVISITED;
@@ -450,6 +455,14 @@ public class Grafo<T extends Comparable<T>, V>
 			outgoing.add(vert);
 		}
 
+		public T getValue() {
+			return value;
+		}
+
+		public void setValue(T value) {
+			this.value = value;
+		}
+
 		/**
 		 * Get string of Vertex with all it's ingoing and outgoing adjacencies
 		 * @ return string
@@ -457,15 +470,15 @@ public class Grafo<T extends Comparable<T>, V>
 		@Override
 		public String toString()
 		{
-			return "la Llave es: " + key.toString() + " \n El valor es: " + val +"\n\n";
-		}
-		public V getVal()
-		{
-			return val;
+			String retval = "";
+			retval += "Vertex: " + value + " : ";
+			retval += " In: ";
+			for (Vertex each : incoming) retval+= each.value + " ";
+			retval += "Out: ";
+			for (Vertex each : outgoing) retval += each.value + " ";
+			return retval;
 		}
 	}
-	
-	
 
 	class Edge
 	{
@@ -473,29 +486,54 @@ public class Grafo<T extends Comparable<T>, V>
 		Vertex to;
 		double cost;
 
+		public Vertex getFrom() {
+			return from;
+		}
+
+		public void setFrom(Vertex from) {
+			this.from = from;
+		}
+
+		public Vertex getTo() {
+			return to;
+		}
+
+		public void setTo(Vertex to) {
+			this.to = to;
+		}
+
+		public double getCost() {
+			return cost;
+		}
+
+		public void setCost(double cost) {
+			this.cost = cost;
+		}
+
 		/**
 		 * @param v1 value of type T for 'from' vertex
 		 * @param v2 value of type T for 'to' vertex
-		 * @param cost integer value for cost/weight of edge
+		 * @param cost2 integer value for cost/weight of edge
 		 */
-		public Edge(T v1, T v2, double cost) throws Exception
+		public Edge(T v1, T v2, double cost2)
 		{
 			from = findVertex(v1);
 			if (from == null)
 			{
-				throw new Exception();
+				from = new Vertex(v1);
+				vertices.add(from);
 			}
 			to = findVertex(v2);
 			if (to == null)
 			{
-				throw new Exception();
+				to = new Vertex(v2);
+				vertices.add(to);
 			}
-			this.cost = cost;
+			this.cost = cost2;
 
 			from.addOutgoing(to);
 			to.addIncoming(from);
-			
-			if(!dirigido)
+			if(!esDirigido)
 			{
 				to.addOutgoing(from);
 				from.addIncoming(to);
@@ -508,7 +546,36 @@ public class Grafo<T extends Comparable<T>, V>
 		@Override
 		public String toString()
 		{
-			return "Edge From: " + from.key + " to: " + to.key + " cost: " + cost;
+			return "Edge From: " + from.value + " to: " + to.value + " cost: " + cost;
 		}
 	}
+
+	public T getMaxVert() 
+	{
+		Vertex max = vertices.get(0);
+		for(Vertex actual : vertices)
+		{
+			if(actual.compareTo(max) > 0)
+			{
+				max = actual;
+			}
+		}
+		// TODO Auto-generated method stub
+		return max.getValue();
+	}
+
+	public T getMaxEdge() 
+	{
+		Edge max = edges.get(0);
+		for(Edge actual : edges)
+		{
+			if(actual.getFrom().compareTo(max.getFrom()) > 0)
+			{
+			max = actual;
+			}
+		}
+		// TODO Auto-generated method stub
+		return max.from.getValue();
+	}
 }
+
