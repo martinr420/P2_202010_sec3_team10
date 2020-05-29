@@ -33,6 +33,14 @@ public class Geo {
 		this.tipo = tipo;
 		this.coordenadas = coordenadas;
 	}
+	public double getLat()
+	{
+		return coordenadas[0];
+	}
+	public double getLng()
+	{
+		return coordenadas[1];
+	}
 	
 	public String toString()
 	{

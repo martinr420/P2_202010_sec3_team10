@@ -13,15 +13,11 @@ package model.data_structures;
 import java.util.List;
 import java.util.Queue;
 
-import model.logic.Vertice;
-
 import java.util.PriorityQueue;
-import java.util.Deque;
 import java.util.LinkedList;
 import java.util.ArrayList;
 import java.util.Collections;
 
-@SuppressWarnings("unchecked")
 /**
  * Creates a directed, weighted <tt>Graph</tt> for any Comparable type
  * <p> add Edge date with <code>add(T valueforVertexFrom, T valueForVertexTo, int cost)</code>
@@ -361,6 +357,49 @@ public class Grafo<T extends Comparable<T>>
 			each.previous = null;
 		}
 	}
+	
+	public T getMaxVert() 
+	{
+		Vertex max = vertices.get(0);
+		for(Vertex actual : vertices)
+		{
+			if(actual.compareTo(max) > 0)
+			{
+				max = actual;
+			}
+		}
+		// TODO Auto-generated method stub
+		return max.getValue();
+	}
+
+	public T getMaxEdge() 
+	{
+		Edge max = edges.get(0);
+		for(Edge actual : edges)
+		{
+			if(actual.getFrom().compareTo(max.getFrom()) > 0)
+			{
+			max = actual;
+			}
+		}
+		// TODO Auto-generated method stub
+		return max.from.getValue();
+	}
+	
+	public T[] getVertices()
+	{
+		T[] lista = (T[])new Object[V()];
+		for(int i = 0; i < V(); i++)
+		{
+			lista[i] = vertices.get(i).value;
+		}
+		return lista;
+	}
+	
+	public ArrayList<Edge> getEdges()
+	{
+		return edges;
+	}
 
 	/**
 	 * PUBLIC WRAPPER FOR PRIVATE FUNCTIONS
@@ -407,9 +446,14 @@ public class Grafo<T extends Comparable<T>>
 		}
 		return retval;
 	}
+	
+	public void setCantidadMultasEdge(Edge e, int cantidad)
+	{
+		e.setCantidadMultas(cantidad);
+	}
 
 
-	class Vertex implements Comparable<Vertex>
+	public class Vertex implements Comparable<Vertex>
 	{
 		T value;
 
@@ -480,14 +524,24 @@ public class Grafo<T extends Comparable<T>>
 		}
 	}
 
-	class Edge
+	public class Edge
 	{
 		Vertex from;
 		Vertex to;
 		double cost;
+		int cantidadMultas = 0;
 
 		public Vertex getFrom() {
 			return from;
+		}
+		
+		public void setCantidadMultas(int cantidad)
+		{
+			cantidadMultas = cantidad;
+		}
+		public int getCantidadMultas()
+		{
+			return cantidadMultas;
 		}
 
 		public void setFrom(Vertex from) {
@@ -539,6 +593,15 @@ public class Grafo<T extends Comparable<T>>
 				from.addIncoming(to);
 			}
 		}
+		
+		public T getFromVale()
+		{
+			return from.getValue();
+		}
+		public T getToValue()
+		{
+			return to.getValue();
+		}
 
 		/**
 		 * @return Edge as string
@@ -550,32 +613,6 @@ public class Grafo<T extends Comparable<T>>
 		}
 	}
 
-	public T getMaxVert() 
-	{
-		Vertex max = vertices.get(0);
-		for(Vertex actual : vertices)
-		{
-			if(actual.compareTo(max) > 0)
-			{
-				max = actual;
-			}
-		}
-		// TODO Auto-generated method stub
-		return max.getValue();
-	}
 
-	public T getMaxEdge() 
-	{
-		Edge max = edges.get(0);
-		for(Edge actual : edges)
-		{
-			if(actual.getFrom().compareTo(max.getFrom()) > 0)
-			{
-			max = actual;
-			}
-		}
-		// TODO Auto-generated method stub
-		return max.from.getValue();
-	}
 }
 

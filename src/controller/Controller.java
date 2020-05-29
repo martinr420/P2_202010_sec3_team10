@@ -6,6 +6,7 @@ import java.util.Scanner;
 import model.data_structures.NoHayVerticeException;
 import model.data_structures.noExisteObjetoException;
 import model.logic.Modelo;
+import model.logic.Vertice;
 import view.View;
 
 public class Controller {
@@ -46,6 +47,24 @@ public class Controller {
 					System.out.println(e.getMessage());
 				}					
 				break;
+			case 2:
+				System.out.println("ingrese la latitud");
+				double lat = lector.nextDouble();
+				System.out.println("Ingerese la lng");
+				double lng = lector.nextDouble();
+				Vertice v1 = modelo.darVerticeMasCercano(lat, lng);
+				System.out.println("El id del vertice mas cercano es");
+				break;
+			case 3: 
+				System.out.println("Adicionando informacion...");
+				modelo.adicionarInformacion();
+				System.out.println("Se  adiciono la informacion");
+			case 4: 
+				System.out.println("Adicionando segundo costo (multas de cada Arco)");
+				modelo.agregarMultasEdge();
+				System.out.println("finalizado");
+			case 5:
+				
 
 
 

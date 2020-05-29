@@ -9,9 +9,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import javax.swing.JFrame;
 import javax.swing.WindowConstants;
+import javax.xml.ws.handler.HandlerResolver;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -27,6 +29,7 @@ import com.teamdev.jxmaps.MapViewOptions;
 import edu.princeton.cs.algs4.LinearProbingHashST;
 import edu.princeton.cs.algs4.Queue;
 import model.data_structures.Grafo;
+import model.data_structures.Grafo.Edge;
 import model.data_structures.MaxPQ;
 import model.data_structures.NoHayVerticeException;
 import model.data_structures.noExisteObjetoException;
@@ -45,21 +48,23 @@ public class Modelo {
 ;
 	private Haversine haversine;
 	private MaxPQ<Estacion> qEstacion;
-	private MaxPQ<Multa> qMultas;
-	private Grafo<Vertice<Integer, String>> grafo;
-	LinearProbingHashST<Integer, Vertice<Integer, String>> enteroAVertice;
-	LinearProbingHashST<Vertice<Integer, String>, Integer> verticeAEntero;
+	private MaxPQ<Multa> pqMultas;
+	private Queue<Multa> multas;
+	private Grafo<Vertice> grafo;
+	private Vertice[] enteroAVertice;
 
 	
 
 	public Modelo()
 	{
-		grafo = new Grafo<Vertice<Integer, String>>(false);
+		grafo = new Grafo<Vertice>(false);
 		haversine = new Haversine();
 		qEstacion = new MaxPQ<Estacion>();
-		qMultas = new MaxPQ<Multa>();
-		enteroAVertice = new LinearProbingHashST<Integer, Vertice<Integer, String>>();
-		verticeAEntero = new LinearProbingHashST<Vertice<Integer, String>, Integer>();
+		pqMultas = new MaxPQ<Multa>();
+		haversine = new Haversine();
+		multas = new Queue<>();
+
+		enteroAVertice = new Vertice[228050];
 
 	}
 
@@ -67,6 +72,7 @@ public class Modelo {
 	
 	private void cargarGrafo() throws NoHayVerticeException, FileNotFoundException
 	{
+		long inicio = System.currentTimeMillis();
 		String pathArcos = "./data/Json_Arcos";
 		JsonReader lectorArcos;
 
@@ -80,11 +86,14 @@ public class Modelo {
 			{
 				JsonObject o = e.getAsJsonObject();
 				int key = o.get("key").getAsInt();
-				String val = o.get("val").getAsString();
-				Vertice<Integer, String> v = new Vertice<Integer, String>(key, val);
+				JsonObject val = o.get("val").getAsJsonObject();
+				double lat = val.get("b").getAsDouble();
+				double lon = val .get("a").getAsDouble();
+				LatLng llVal = new LatLng(lat, lon); 
+				Vertice v = new Vertice(key, llVal);
 				
-				verticeAEntero.put(v, key);
-				enteroAVertice.put(key, v);
+
+				enteroAVertice[key] = v;
 				
 				grafo.addVertex(v);
 				
@@ -94,6 +103,9 @@ public class Modelo {
 			lectorArcos = new JsonReader(new FileReader(pathArcos));
 			JsonElement elementoE =  JsonParser.parseReader(lectorArcos);
 			JsonArray listaEdges = elementoE.getAsJsonArray();
+			System.out.println("Cargando edges Va a tradar demasiado");
+			
+			System.out.println("Cargando arcos esto va a tardar varios minutos");
 			for(JsonElement e : listaEdges)
 			{
 				JsonObject o = e.getAsJsonObject();
@@ -103,16 +115,19 @@ public class Modelo {
 				
 
 				int from = o.get("from").getAsInt();
-				Vertice<Integer, String> vFrom = enteroAVertice.get(from);
+				Vertice vFrom = enteroAVertice[from]; 
 			
 
 				int to = o.get("to").getAsInt();
-				Vertice<Integer, String> vTo = enteroAVertice.get(to);
+				Vertice vTo = enteroAVertice[to]; 
 				
 		
-				grafo.addEdge(vFrom, vTo, peso);
+				grafo.addEdge(vFrom, vTo, peso);	
+				System.out.println(from);
+				
 			
 			}
+			
 
 			System.out.println("Arcos: " + grafo.E());
 			System.out.println("Vertices" + grafo.V());
@@ -219,9 +234,12 @@ public class Modelo {
 
 				Multa multa = new Multa(id, fecha, medioDete, claseVehiculo, tipoServicio, infraccion, descripcion, localidad, municipio, geometria);
 
-				qMultas.insert(multa);
+				pqMultas.insert(multa);
+				multas.enqueue(multa);
+				
 
 			} //llave for grande
+			
 
 		}//llave try
 		catch (IOException e) 
@@ -256,9 +274,9 @@ public class Modelo {
 		
 		
 		System.out.println("\n\n\n ======================================================================\n");
-		System.out.println("Total comparendos en el archivo: " + qMultas.size());
+		System.out.println("Total comparendos en el archivo: " + pqMultas.size());
 		
-		Multa multaMayor = qMultas.delMax();
+		Multa multaMayor = pqMultas.delMax();
 		System.out.println("La multa con el mayor id es: " + multaMayor.toString());
 		
 		System.out.println("Total de estaciones de policia del archivo es: " + qEstacion.size());
@@ -268,16 +286,63 @@ public class Modelo {
 		
 		System.out.println("El total de vertices es  " + grafo.V());
 		
-		Vertice<Integer, String> mayorVertice = grafo.getMaxVert();
+		Vertice mayorVertice = grafo.getMaxVert();
 		System.out.println(mayorVertice.getKey());
 		
 		System.out.println("El total de arcos es: " + grafo.E());
 		
-		Vertice<Integer, String> mayorEdge = grafo.getMaxEdge();
-		System.out.println("EL mayor arco es: " + mayorEdge);
+		Vertice mayorEdge = grafo.getMaxEdge();
+		System.out.println("EL mayor arco es: " + mayorEdge.getKey());
 		System.out.println("\n ============================================================================== \n\n\n");
 		
 	}
+	
+	public Vertice darVerticeMasCercano(double lat, double lng)
+	{
+		Vertice masCercano = null;
+		double distanciaMasCercana = Integer.MAX_VALUE;
+		for(Vertice actual : grafo.getVertices())
+		{
+			double latActual = actual.getLat();
+			double lngActual = actual.getLng();
+			double distanciaActual = haversine.distance(lat, lng, latActual, lngActual);
+			if( distanciaActual < distanciaMasCercana)
+			{
+				distanciaMasCercana = distanciaActual;
+				masCercano = actual;
+			}
+		}
+		return masCercano;
+	}
+	
+	public void adicionarInformacion()
+	{
+		int tamMultas = multas.size();
+		for(int i = 0; i < tamMultas; i++)
+		{
+			Multa actual = multas.dequeue();
+			multas.enqueue(actual);
+			double latActual = actual.getGeo().getLat();
+			double lngActual = actual.getGeo().getLng();
+			Vertice v = darVerticeMasCercano(latActual, lngActual);
+			v.agregarMulta(actual);
+			System.out.println(v.getKey());
+		}
+	}
+	
+	public void agregarMultasEdge()
+	{
+		for(Edge e : grafo.getEdges())
+		{
+			Vertice from = (Vertice) e.getFromVale();
+			Vertice to = (Vertice) e.getToValue();
+			
+			int totalMultas = from.darComparendos().size() +  to.darComparendos().size();
+			
+			grafo.setCantidadMultasEdge(e, totalMultas);
+		}
+	}
+	
 
 	
 
