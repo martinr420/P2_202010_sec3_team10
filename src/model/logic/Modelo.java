@@ -25,7 +25,7 @@ import com.teamdev.jxmaps.LatLng;
 import com.teamdev.jxmaps.MapViewOptions;
 
 import edu.princeton.cs.algs4.Queue;
-import model.data_structures.GrafoNoDirigido;
+import model.data_structures.Grafo;
 import model.data_structures.MaxPQ;
 import model.data_structures.noExisteObjetoException;
 
@@ -40,7 +40,7 @@ public class Modelo {
 	private final static double LONGITUD_MIN = -74.094723; 
 	private final static double LONGITUD_MAX = -74.062707;
 
-	private GrafoNoDirigido<Integer, String> grafo;
+	private Grafo<Integer, String> grafo;
 	private Haversine haversine;
 	private MaxPQ<Vertice> qVertice;
 	private MaxPQ<Edge> qEdge;
@@ -50,7 +50,7 @@ public class Modelo {
 
 	public Modelo()
 	{
-		grafo = new GrafoNoDirigido<Integer,String>(228046);
+		grafo = new Grafo<Integer,String>(false);
 		haversine = new Haversine();
 		qVertice = new MaxPQ<Vertice>();
 		qEdge = new MaxPQ<Edge>();
@@ -103,8 +103,8 @@ public class Modelo {
 				grafo.addEdge(from, to, peso);
 			}
 
-			System.out.println("Arcos: " + grafo.cantidadArcos());
-			System.out.println("Vertices" + grafo.cantidadVertices());
+			System.out.println("Arcos: " + grafo.E());
+			System.out.println("Vertices" + grafo.V());
 		}
 		catch(Exception e)
 		{
@@ -325,6 +325,8 @@ public class Modelo {
 	{
 		return (latActual <= latMax && latActual >= latMin) && (lonActual <= lonMax && lonActual >= lonMin);
 	}
+	
+	private reque1A
 
 
 
