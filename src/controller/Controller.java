@@ -59,14 +59,34 @@ public class Controller {
 				System.out.println("Adicionando informacion...");
 				modelo.adicionarInformacion();
 				System.out.println("Se  adiciono la informacion");
+				break;
 			case 4: 
 				System.out.println("Adicionando segundo costo (multas de cada Arco)");
 				modelo.agregarMultasEdge();
 				System.out.println("finalizado");
+				break;
 			case 5:
 				System.out.println("Adicionando estaciones");
 				modelo.adicionarEstacionesAlGrafo();
 				System.out.println("finalizado");
+				break;
+			case 6: 
+				System.out.println("ingrese la latitud inicial");
+				double lat1 = lector.nextDouble();
+				System.out.println("Ingerese la lng inicial");
+				double lng1 = lector.nextDouble();
+				System.out.println("ingrese la latitud final");
+				double lat2 = lector.nextDouble();
+				System.out.println("Ingerese la lng final");
+				double lng2 = lector.nextDouble();
+				modelo.ObtenerCostoMinimo(lat1, lng1, lat2, lng2);
+				break;
+			case 7:
+				System.out.println("ingrese la cantidad de camaras");
+				int numero = lector.nextInt();
+				modelo.A2(numero);
+				break;
+				
 
 
 

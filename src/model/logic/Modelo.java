@@ -26,8 +26,10 @@ import com.google.gson.stream.JsonReader;
 import com.teamdev.jxmaps.LatLng;
 import com.teamdev.jxmaps.MapViewOptions;
 
+import edu.princeton.cs.algs4.Heap;
 import edu.princeton.cs.algs4.LinearProbingHashST;
 import edu.princeton.cs.algs4.Queue;
+import model.data_structures.DynamicArray;
 import model.data_structures.Grafo;
 import model.data_structures.Grafo.Edge;
 import model.data_structures.MaxPQ;
@@ -49,7 +51,7 @@ public class Modelo {
 	private final static double LONGITUD_MIN = -74.294133; 
 	private final static double LONGITUD_MAX = -73.986181;
 	private final static int N = 20;
-;
+	;
 	private Haversine haversine;
 	private MaxPQ<Estacion> pqEstacion;
 	private Queue<Estacion> estaciones;
@@ -57,8 +59,9 @@ public class Modelo {
 	private Queue<Multa> multas;
 	private Grafo<Vertice> grafo;
 	private Vertice[] enteroAVertice;
+	private MaxPQ<Vertice> verticesPorCantidadMultas;
 
-	
+
 
 	public Modelo()
 	{
@@ -70,77 +73,85 @@ public class Modelo {
 		multas = new Queue<>();
 		estaciones = new Queue<>();
 
+		ComparadorCantidadMultas c = new ComparadorCantidadMultas();
+		verticesPorCantidadMultas = new MaxPQ<>(228050, c);
+
+
+
+
+
 		enteroAVertice = new Vertice[228050];
 
 	}
 
-	
-	
+
+
 	private void cargarGrafo() throws NoHayVerticeException, FileNotFoundException
 	{
-		long inicio = System.currentTimeMillis();
 		String pathArcos = "./data/Json_Arcos";
 		JsonReader lectorArcos;
 
 		String pathVertex = "./data/Json_Vertices"; 
 		JsonReader lectorVertices;
-		
-			lectorVertices = new JsonReader(new FileReader(pathVertex));
-			JsonElement elementoV =  JsonParser.parseReader(lectorVertices);
-			JsonArray listaVertices = elementoV.getAsJsonArray();
-			for(JsonElement e : listaVertices)
-			{
-				JsonObject o = e.getAsJsonObject();
-				int key = o.get("key").getAsInt();
-				JsonObject val = o.get("val").getAsJsonObject();
-				double lat = val.get("b").getAsDouble();
-				double lon = val .get("a").getAsDouble();
-				LatLng llVal = new LatLng(lat, lon); 
-				Vertice v = new Vertice(key, llVal);
-				
 
-				enteroAVertice[key] = v;
-				
-				grafo.addVertex(v);
-				
-			}
+		lectorVertices = new JsonReader(new FileReader(pathVertex));
+		JsonElement elementoV =  JsonParser.parseReader(lectorVertices);
+		JsonArray listaVertices = elementoV.getAsJsonArray();
+		for(JsonElement e : listaVertices)
+		{
+			JsonObject o = e.getAsJsonObject();
+			int key = o.get("key").getAsInt();
+			JsonObject val = o.get("val").getAsJsonObject();
+			double lat = val.get("b").getAsDouble();
+			double lon = val .get("a").getAsDouble();
+			LatLng llVal = new LatLng(lat, lon); 
+			Vertice v = new Vertice(key, llVal);
 
-			System.out.println("se agregaron los vertices");
-			lectorArcos = new JsonReader(new FileReader(pathArcos));
-			JsonElement elementoE =  JsonParser.parseReader(lectorArcos);
-			JsonArray listaEdges = elementoE.getAsJsonArray();
-			System.out.println("Cargando edges Va a tradar demasiado");
-			
-			System.out.println("Cargando arcos esto va a tardar varios minutos");
-			for(JsonElement e : listaEdges)
-			{
-				JsonObject o = e.getAsJsonObject();
-				String pesoS = o.get("peso").getAsString();
 
-				double peso = Double.parseDouble(pesoS);
-				
+			enteroAVertice[key] = v;
 
-				int from = o.get("from").getAsInt();
-				Vertice vFrom = enteroAVertice[from]; 
-			
+			grafo.addVertex(v);
 
-				int to = o.get("to").getAsInt();
-				Vertice vTo = enteroAVertice[to]; 
-				
-		
-				grafo.addEdge(vFrom, vTo, peso);	
-				System.out.println(from);
-				
-			
-			}
-			
+			verticesPorCantidadMultas.insert(v);
 
-			System.out.println("Arcos: " + grafo.E());
-			System.out.println("Vertices" + grafo.V());
-		
-		
+		}
 
-		
+		System.out.println("se agregaron los vertices");
+		lectorArcos = new JsonReader(new FileReader(pathArcos));
+		JsonElement elementoE =  JsonParser.parseReader(lectorArcos);
+		JsonArray listaEdges = elementoE.getAsJsonArray();
+		System.out.println("Cargando edges Va a tradar demasiado");
+
+		System.out.println("Cargando arcos esto va a tardar varios minutos");
+		for(JsonElement e : listaEdges)
+		{
+			JsonObject o = e.getAsJsonObject();
+			String pesoS = o.get("peso").getAsString();
+
+			double peso = Double.parseDouble(pesoS);
+
+
+			int from = o.get("from").getAsInt();
+			Vertice vFrom = enteroAVertice[from]; 
+
+
+			int to = o.get("to").getAsInt();
+			Vertice vTo = enteroAVertice[to]; 
+
+
+			grafo.addEdge(vFrom, vTo, peso);	
+			System.out.println(from);
+
+
+		}
+
+
+		System.out.println("Arcos: " + grafo.E());
+		System.out.println("Vertices" + grafo.V());
+
+
+
+
 
 	}
 
@@ -215,8 +226,8 @@ public class Modelo {
 				String fechaConcatenadita = anio + "-" + mes +"-"+ dia + " " + hora + ":" + min + ":" + seg; 
 				SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 				Date fecha = sdf.parse(fechaConcatenadita);
-				
-				
+
+
 				String medioDete = propiedades.getAsJsonObject().get("MEDIO_DETECCION").getAsString();
 				String claseVehiculo = propiedades.getAsJsonObject().get("CLASE_VEHICULO").getAsString();
 				String tipoServicio = propiedades.getAsJsonObject().get("TIPO_SERVICIO").getAsString();
@@ -243,23 +254,21 @@ public class Modelo {
 
 				pqMultas.insert(multa);
 				multas.enqueue(multa);
-				
-
 			} //llave for grande
-			
+
 
 		}//llave try
 		catch (IOException e) 
 		{
 			e.printStackTrace();
 		}
-	
+
 	} //llave metodo
 
-	
+
 	public void cargarDatos() throws FileNotFoundException, NoHayVerticeException 
 	{
-		
+
 		try {
 			cargarEstaciones();
 			System.out.println("Estaciones Cargadas");
@@ -278,32 +287,32 @@ public class Modelo {
 			System.out.println("problemas con el archivo");
 		}
 		cargarGrafo();
-		
-		
+
+
 		System.out.println("\n\n\n ======================================================================\n");
 		System.out.println("Total comparendos en el archivo: " + pqMultas.size());
-		
+
 		Multa multaMayor = pqMultas.delMax();
 		System.out.println("La multa con el mayor id es: " + multaMayor.toString());
-		
+
 		System.out.println("Total de estaciones de policia del archivo es: " + pqEstacion.size());
-		
+
 		Estacion mayorEstacion = pqEstacion.delMax();
 		System.out.println(mayorEstacion.toString());
-		
+
 		System.out.println("El total de vertices es  " + grafo.V());
-		
+
 		Vertice mayorVertice = grafo.getMaxVert();
 		System.out.println(mayorVertice.getKey());
-		
+
 		System.out.println("El total de arcos es: " + grafo.E());
-		
+
 		Vertice mayorEdge = grafo.getMaxEdge();
 		System.out.println("EL mayor arco es: " + mayorEdge.getKey());
 		System.out.println("\n ============================================================================== \n\n\n");
-		
+
 	}
-	
+
 	public Vertice darVerticeMasCercano(double lat, double lng)
 	{
 		Vertice masCercano = null;
@@ -321,7 +330,7 @@ public class Modelo {
 		}
 		return masCercano;
 	}
-	
+
 	public void adicionarInformacion()
 	{
 		int tamMultas = multas.size();
@@ -333,24 +342,25 @@ public class Modelo {
 			double lngActual = actual.getGeo().getLng();
 			Vertice v = darVerticeMasCercano(latActual, lngActual);
 			v.agregarMulta(actual);
+			actual.setVertice(v);
 			System.out.println(v.getKey());
 		}
 	}
-	
+
 	public void agregarMultasEdge()
 	{
 		for(Edge e : grafo.getEdges())
 		{
 			Vertice from = (Vertice) e.getFromVale();
 			Vertice to = (Vertice) e.getToValue();
-			
+
 			int totalMultas = from.darComparendos().size() +  to.darComparendos().size();
-			
+
 			grafo.setCantidadMultasEdge(e, totalMultas);
 			System.out.println(from.getKey()+ " "+ totalMultas);
 		}
 	}
-	
+
 	public void adicionarEstacionesAlGrafo()
 	{
 		for(Estacion actual : estaciones)
@@ -362,7 +372,7 @@ public class Modelo {
 			System.out.println(v.getKey());
 		}
 	}
-	
+
 	public void ObtenerCostoMinimo(double latIni, double lngIni, double latFin, double lngFin)
 	{
 		if(estaDentroBogota(latIni, lngIni) && estaDentroBogota(latFin, lngFin))
@@ -380,15 +390,15 @@ public class Modelo {
 				String distanciaMinima = datos[3];
 				System.out.println(" el id es: " + id + " la latitud es: " + lat + " la longitud es: "
 						+ lng + " la distancia minima es: " + distanciaMinima);
-				
+
 			}
 			String totalDistancia = lista.get(lista.size()-1);
 			System.out.println("el total de a distancia es: " + totalDistancia);
 			System.out.println("La cantidad de nodos es: " + lista.size());
-			
+
 			Mapa mapa = new Mapa("Camino mas corto");
 			mapa.GenerateLine(true, camino);
-			
+
 		}
 		else
 		{
@@ -400,104 +410,159 @@ public class Modelo {
 			LatLng vert4 = new LatLng(LATITUD_MIN, LONGITUD_MAX);
 
 			mapa.GenerateLine(false, vert1, vert2, vert3, vert4);
-			
+
 			LatLng punto1 = new LatLng(latIni,lngIni);
 			mapa.generateMarker(punto1);
-			
+
 			LatLng punto2 = new LatLng(latFin, lngFin);
 			mapa.generateMarker(punto2);
-			
-		}
-		
 
-
-		
-		
+		}	
 	}
-	
-	
-	
-	
-	
-	
-	
 
-	
+	public void A2(int m)
+	{
+		long ini = System.currentTimeMillis();
+		Vertice[] vertices = new Vertice[m];
+		for(int i = 0; i < m; i++)
+		{
+			vertices[i] = verticesPorCantidadMultas.delMax();
+		}
+		for(int i = 0; i < m; i++)
+		{
+			verticesPorCantidadMultas.insert(vertices[i]);
+		}
+		int CostoMonetario = 0;
+		int totalVertices = 0; 
+		DynamicArray<LatLng> latlngs = new DynamicArray<LatLng>();
+		for(int i = 0; i < m-1; i++)
+		{
+			Vertice origen = vertices[i];
+			Vertice destino = vertices[i+1];
+			List<String> caminoActual = grafo.getPath(origen, destino);
+			
+			for(int j = 0; j < caminoActual.size() - 1; j++ )
+			{		
+				
+				String[] datos = caminoActual.get(i).split(":");
+				String id = datos[0];
+				String lat = datos[1];
+				String lng = datos[2];
+				String distanciaMinima = datos[3];
+				totalVertices++;
+				Vertice edgeOrigen = enteroAVertice[Integer.parseInt(id)];
+				 
+				int idSiguiente = Integer.parseInt(caminoActual.get(i+1).split(":")[0]);
+				
+				System.out.println("El Arco va de: " + id + " " + idSiguiente  );
+				
+				LatLng latLng = new LatLng(Integer.parseInt(lat), Integer.parseInt(lng));
+				latlngs.add(latLng);
+			}
+			CostoMonetario += Integer.parseInt(caminoActual.get(caminoActual.size()-1));
+		}
+		System.out.println("el costo monetario es de:" + CostoMonetario * 10000);
+		System.out.println("El total de vertices es de: " + totalVertices);
+		long fin = System.currentTimeMillis();
+		System.out.println("Tiempo total es de: " + (fin-ini));
+		
+		Mapa mapa = new Mapa("Red de camaras");
+		mapa.GenerateLine(false, latlngs.darArreglo());
+		for(int i = 0; i < m; i++)
+		{
+			double latitud = vertices[i].getLat();
+			double longitud = vertices[i].getLng();
+			LatLng porFavorMateneme = new LatLng(latitud, longitud);
+			mapa.generateMarker(porFavorMateneme);
+					
+		}
 
-//	public void graficar()
-//	{
-//
-//		final Mapa mapa = new Mapa("test");
-//
-//		LatLng vert1 = new LatLng(LATITUD_MIN, LONGITUD_MIN);
-//		LatLng vert2 = new LatLng(LATITUD_MAX, LONGITUD_MIN);
-//		LatLng vert3 = new LatLng(LATITUD_MAX, LONGITUD_MAX);
-//		LatLng vert4 = new LatLng(LATITUD_MIN, LONGITUD_MAX);
-//
-//		mapa.GenerateLine(false, vert1, vert2, vert3, vert4);
-//		for(Estacion estacion : qEstacion)
-//		{
-//			double lat = estacion.getLat();
-//			double lon = estacion.getLon();
-//			mapa.generateMarker(new LatLng(lat, lon));
-//		}
-//
-//		for(Vertice v : qVertice)
-//		{
-//			double lat = v.getLat();
-//			double lon = v.getLong();
-//			if(estaDentro(LATITUD_MIN, LONGITUD_MIN, LATITUD_MAX, LONGITUD_MAX, lat, lon))
-//			{
-//				mapa.generateArea(new LatLng(lat, lon), 5.0);
-//			}
-//
-//		}
-//		for (Edge e : qEdge)
-//		{
-//			int from = (int) e.getFrom();
-//			int to = (int ) e.getTo();
-//
-//			String fromS = grafo.getValueVertex(from);
-//			String toS = grafo.getValueVertex(to);
-//
-//			String[] partesFrom = fromS.split("/");
-//			String[] partesTo = toS.split("/");
-//
-//			double latIni = Double.parseDouble(partesFrom[1]);
-//			double lonIni = Double.parseDouble(partesFrom[0]);
-//			double latFin = Double.parseDouble(partesTo[1]);
-//			double lonFin = Double.parseDouble(partesTo[0]);
-//
-//			if(estaDentro(LATITUD_MIN, LONGITUD_MIN, LATITUD_MAX, LONGITUD_MAX, latIni, lonIni) && estaDentro(LATITUD_MIN, LONGITUD_MIN, LATITUD_MAX, LONGITUD_MAX, latFin, lonFin) )
-//			{
-//				LatLng start = new LatLng(latIni, lonIni);
-//				LatLng end = new LatLng(latFin, lonFin);
-//				mapa.generateSimplePath(start, end, false);
-//			}
-//		}
-//
-//
-//		System.out.println("Mapa completo");
-//	}
+
+	}
+
+
+
+
+
+
+
+
+
+
+	//	public void graficar()
+	//	{
+	//
+	//		final Mapa mapa = new Mapa("test");
+	//
+	//		LatLng vert1 = new LatLng(LATITUD_MIN, LONGITUD_MIN);
+	//		LatLng vert2 = new LatLng(LATITUD_MAX, LONGITUD_MIN);
+	//		LatLng vert3 = new LatLng(LATITUD_MAX, LONGITUD_MAX);
+	//		LatLng vert4 = new LatLng(LATITUD_MIN, LONGITUD_MAX);
+	//
+	//		mapa.GenerateLine(false, vert1, vert2, vert3, vert4);
+	//		for(Estacion estacion : qEstacion)
+	//		{
+	//			double lat = estacion.getLat();
+	//			double lon = estacion.getLon();
+	//			mapa.generateMarker(new LatLng(lat, lon));
+	//		}
+	//
+	//		for(Vertice v : qVertice)
+	//		{
+	//			double lat = v.getLat();
+	//			double lon = v.getLong();
+	//			if(estaDentro(LATITUD_MIN, LONGITUD_MIN, LATITUD_MAX, LONGITUD_MAX, lat, lon))
+	//			{
+	//				mapa.generateArea(new LatLng(lat, lon), 5.0);
+	//			}
+	//
+	//		}
+	//		for (Edge e : qEdge)
+	//		{
+	//			int from = (int) e.getFrom();
+	//			int to = (int ) e.getTo();
+	//
+	//			String fromS = grafo.getValueVertex(from);
+	//			String toS = grafo.getValueVertex(to);
+	//
+	//			String[] partesFrom = fromS.split("/");
+	//			String[] partesTo = toS.split("/");
+	//
+	//			double latIni = Double.parseDouble(partesFrom[1]);
+	//			double lonIni = Double.parseDouble(partesFrom[0]);
+	//			double latFin = Double.parseDouble(partesTo[1]);
+	//			double lonFin = Double.parseDouble(partesTo[0]);
+	//
+	//			if(estaDentro(LATITUD_MIN, LONGITUD_MIN, LATITUD_MAX, LONGITUD_MAX, latIni, lonIni) && estaDentro(LATITUD_MIN, LONGITUD_MIN, LATITUD_MAX, LONGITUD_MAX, latFin, lonFin) )
+	//			{
+	//				LatLng start = new LatLng(latIni, lonIni);
+	//				LatLng end = new LatLng(latFin, lonFin);
+	//				mapa.generateSimplePath(start, end, false);
+	//			}
+	//		}
+	//
+	//
+	//		System.out.println("Mapa completo");
+	//	}
 
 	private boolean estaDentro(double latMin, double lonMin, double latMax, double lonMax, double latActual, double lonActual)
 	{
 		return (latActual <= latMax && latActual >= latMin) && (lonActual <= lonMax && lonActual >= lonMin);
 	}
-	
+
 	private boolean estaDentroBogota(double lat, double lng)
 	{
 		return (lat < LATITUD_MAX && lat > LATITUD_MIN && lng < LONGITUD_MAX && lng > LONGITUD_MIN);
 	}
-	
-//	public void inicial1(double lat, double lon)
-//	{
-//		double dist = Double.MAX_VALUE;
-//		
-//		for(grafo.)
-//		
-//	}
-//	public void reque1A
+
+	//	public void inicial1(double lat, double lon)
+	//	{
+	//		double dist = Double.MAX_VALUE;
+	//		
+	//		for(grafo.)
+	//		
+	//	}
+	//	public void reque1A
 
 
 

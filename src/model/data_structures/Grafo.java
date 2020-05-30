@@ -35,7 +35,7 @@ public class Grafo<T extends Comparable<T>>
 	private ArrayList<Vertex> vertices;
 	private ArrayList<Edge> edges;
 	private boolean esDirigido;
-
+	
 	/**
 	 * Default Constructor
 	 */
@@ -119,6 +119,7 @@ public class Grafo<T extends Comparable<T>>
 		}
 		return null;
 	}
+	
 
 	/**
 	 * Find edge from two values
@@ -126,7 +127,7 @@ public class Grafo<T extends Comparable<T>>
 	 * @param to to value of type T
 	 * @return Edge, or <code>null</code> if not found.
 	 */
-	private Edge findEdge(T from, T to)
+	public Edge findEdge(T from, T to)
 	{
 		for (Edge each : edges)
 		{

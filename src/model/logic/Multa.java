@@ -30,9 +30,23 @@ public class Multa implements Comparable<Multa>
 	private Geo geo;
 	
 	private int numeroDiasEspera;
+	
+	private Vertice vertice;
 
 
 
+
+	public Vertice getVertice() {
+		return vertice;
+	}
+
+	public void setVertice(Vertice vertices) {
+		this.vertice = vertices;
+	}
+
+	public void setMunicipio(String municipio) {
+		this.municipio = municipio;
+	}
 
 	public Multa(long id, Date fecha, String medioDete, String vehiculo, String servicio, String infraccion,
 			String descripcion, String localidad, String municipio, Geo geo) 
