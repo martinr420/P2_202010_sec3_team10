@@ -64,7 +64,9 @@ public class Controller {
 				modelo.agregarMultasEdge();
 				System.out.println("finalizado");
 			case 5:
-				
+				System.out.println("Adicionando estaciones");
+				modelo.adicionarEstacionesAlGrafo();
+				System.out.println("finalizado");
 
 
 

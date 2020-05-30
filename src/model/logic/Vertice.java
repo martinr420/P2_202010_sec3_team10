@@ -64,5 +64,10 @@ public class Vertice implements Comparable<Vertice>
 		// TODO Auto-generated method stub
 		return key - arg0.getKey();
 	}
+	
+	public String toString()
+	{
+		return key + ":" + getLat() + ":" + getLng() ;
+	}
 
 }

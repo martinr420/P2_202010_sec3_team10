@@ -335,11 +335,14 @@ public class Grafo<T extends Comparable<T>>
 			return path;
 		}
 
+		int totalDistancia = 0;
 		// loop through the vertices from end target 
 		for (Vertex v = target; v !=null; v = v.previous)
 		{
-			path.add(v.value + " : cost : " + v.minDistance);
+			path.add(v.value.toString() + ":" + v.minDistance);
+			totalDistancia += v.minDistance;
 		}
+		path.add(Integer.toString(totalDistancia));
 
 		// flip the list
 		Collections.reverse(path);

@@ -40,10 +40,14 @@ import model.data_structures.noExisteObjetoException;
  */
 public class Modelo {
 
+	// minimo 4.767362,-73.986181
+	// maximo  4.599696,-74.294133
+
+
 	private final static double LATITUD_MIN = 4.597714;
-	private final static double LATITUD_MAX = 4.621360;
-	private final static double LONGITUD_MIN = -74.094723; 
-	private final static double LONGITUD_MAX = -74.062707;
+	private final static double LATITUD_MAX = 4.767362;
+	private final static double LONGITUD_MIN = -74.294133; 
+	private final static double LONGITUD_MAX = -73.986181;
 	private final static int N = 20;
 ;
 	private Haversine haversine;
@@ -343,6 +347,7 @@ public class Modelo {
 			int totalMultas = from.darComparendos().size() +  to.darComparendos().size();
 			
 			grafo.setCantidadMultasEdge(e, totalMultas);
+			System.out.println(from.getKey()+ " "+ totalMultas);
 		}
 	}
 	
@@ -350,9 +355,69 @@ public class Modelo {
 	{
 		for(Estacion actual : estaciones)
 		{
-			
+			double latActual = actual.getLat();
+			double lngActual = actual.getLon();
+			Vertice v = darVerticeMasCercano(latActual, lngActual);
+			v.agregarEstacion(actual);
+			System.out.println(v.getKey());
 		}
 	}
+	
+	public void ObtenerCostoMinimo(double latIni, double lngIni, double latFin, double lngFin)
+	{
+		if(estaDentroBogota(latIni, lngIni) && estaDentroBogota(latFin, lngFin))
+		{
+			Vertice origen = darVerticeMasCercano(latIni, lngIni);
+			Vertice Destino = darVerticeMasCercano(latFin, lngFin);
+			List<String> lista = grafo.getPath(origen, Destino);
+			LatLng[] camino = new LatLng[lista.size()-1];
+			for(int i = 0; i < lista.size()-1; i++ )
+			{
+				String[] datos = lista.get(i).split(":");
+				String id = datos[0];
+				String lat = datos[1];
+				String lng = datos[2];
+				String distanciaMinima = datos[3];
+				System.out.println(" el id es: " + id + " la latitud es: " + lat + " la longitud es: "
+						+ lng + " la distancia minima es: " + distanciaMinima);
+				
+			}
+			String totalDistancia = lista.get(lista.size()-1);
+			System.out.println("el total de a distancia es: " + totalDistancia);
+			System.out.println("La cantidad de nodos es: " + lista.size());
+			
+			Mapa mapa = new Mapa("Camino mas corto");
+			mapa.GenerateLine(true, camino);
+			
+		}
+		else
+		{
+			System.out.println("coordenadas fuera de alcanze");
+			Mapa mapa = new Mapa("Fuera de alcanze");
+			LatLng vert1 = new LatLng(LATITUD_MIN, LONGITUD_MIN);
+			LatLng vert2 = new LatLng(LATITUD_MAX, LONGITUD_MIN);
+			LatLng vert3 = new LatLng(LATITUD_MAX, LONGITUD_MAX);
+			LatLng vert4 = new LatLng(LATITUD_MIN, LONGITUD_MAX);
+
+			mapa.GenerateLine(false, vert1, vert2, vert3, vert4);
+			
+			LatLng punto1 = new LatLng(latIni,lngIni);
+			mapa.generateMarker(punto1);
+			
+			LatLng punto2 = new LatLng(latFin, lngFin);
+			mapa.generateMarker(punto2);
+			
+		}
+		
+
+
+		
+		
+	}
+	
+	
+	
+	
 	
 	
 	
@@ -415,10 +480,15 @@ public class Modelo {
 //		System.out.println("Mapa completo");
 //	}
 
-//	private boolean estaDentro(double latMin, double lonMin, double latMax, double lonMax, double latActual, double lonActual)
-//	{
-//		return (latActual <= latMax && latActual >= latMin) && (lonActual <= lonMax && lonActual >= lonMin);
-//	}
+	private boolean estaDentro(double latMin, double lonMin, double latMax, double lonMax, double latActual, double lonActual)
+	{
+		return (latActual <= latMax && latActual >= latMin) && (lonActual <= lonMax && lonActual >= lonMin);
+	}
+	
+	private boolean estaDentroBogota(double lat, double lng)
+	{
+		return (lat < LATITUD_MAX && lat > LATITUD_MIN && lng < LONGITUD_MAX && lng > LONGITUD_MIN);
+	}
 	
 //	public void inicial1(double lat, double lon)
 //	{
