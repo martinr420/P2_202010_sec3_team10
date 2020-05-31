@@ -4,7 +4,7 @@ import com.teamdev.jxmaps.LatLng;
 
 import edu.princeton.cs.algs4.Queue;
 
-public class Vertice implements Comparable<Vertice>
+public class Interseccion implements Comparable<Interseccion>
 {
 
 	private int key;
@@ -24,12 +24,12 @@ public class Vertice implements Comparable<Vertice>
 	public void setVal(LatLng val) {
 		this.val = val;
 	}
-	public Vertice(int key, LatLng val) {
+	public Interseccion(int key, LatLng val) {
 		super();
 		this.key = key;
 		this.val = val;
-		comparendos = new Queue<>();
-		estaciones = new Queue<>();
+		comparendos = new Queue<Multa>();
+		estaciones = new Queue<Estacion>();
 	}
 	public double getLat()
 	{
@@ -49,9 +49,9 @@ public class Vertice implements Comparable<Vertice>
 		return comparendos;
 	}
 	
-	public void agregarEstacion(Estacion item)
+	public void agregarEstacion(Estacion estacion)
 	{
-		estaciones.enqueue(item);
+		estaciones.enqueue(estacion);
 	}
 	public Queue<Estacion> darEstaciones()
 	{
@@ -60,7 +60,7 @@ public class Vertice implements Comparable<Vertice>
 
 	
 	@Override
-	public int compareTo(Vertice arg0) {
+	public int compareTo(Interseccion arg0) {
 		// TODO Auto-generated method stub
 		return key - arg0.getKey();
 	}

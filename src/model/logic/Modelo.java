@@ -5,10 +5,9 @@ import java.io.*;
 import java.lang.ProcessBuilder.Redirect.Type;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
-import java.util.List;
+import java.util.Iterator;
 import java.util.concurrent.TimeUnit;
 
 import javax.swing.JFrame;
@@ -26,14 +25,14 @@ import com.google.gson.stream.JsonReader;
 import com.teamdev.jxmaps.LatLng;
 import com.teamdev.jxmaps.MapViewOptions;
 
+import edu.princeton.cs.algs4.Edge;
 import edu.princeton.cs.algs4.Heap;
 import edu.princeton.cs.algs4.LinearProbingHashST;
-import edu.princeton.cs.algs4.Queue;
-import model.data_structures.DynamicArray;
-import model.data_structures.Grafo;
-import model.data_structures.Grafo.Edge;
+
+import model.data_structures.GrafoNoDirigido;
 import model.data_structures.MaxPQ;
 import model.data_structures.NoHayVerticeException;
+import model.data_structures.Queue;
 import model.data_structures.noExisteObjetoException;
 
 /**
@@ -53,34 +52,36 @@ public class Modelo {
 	private final static int N = 20;
 	;
 	private Haversine haversine;
-	private MaxPQ<Estacion> pqEstacion;
 	private Queue<Estacion> estaciones;
-	private MaxPQ<Multa> pqMultas;
 	private Queue<Multa> multas;
-	private Grafo<Vertice> grafo;
-	private Vertice[] enteroAVertice;
-	private MaxPQ<Vertice> verticesPorCantidadMultas;
+	private GrafoNoDirigido<Interseccion> grafo;
+	private Interseccion[] enteroAInterseccion;
+	private LinearProbingHashST<Edge, Integer> cantidadMultasEdge;
+	private Multa mayorMulta;
+	private Estacion mayorEstacion;
+	private Interseccion mayorInterseccion;
+	private Edge mayorEdge;
+	private MaxPQ<Interseccion> maxPQIntersecciones;
 
 
 
 	public Modelo()
 	{
-		grafo = new Grafo<Vertice>(false);
+		grafo = new GrafoNoDirigido<Interseccion>(228050);
 		haversine = new Haversine();
-		pqEstacion = new MaxPQ<Estacion>();
-		pqMultas = new MaxPQ<Multa>();
-		haversine = new Haversine();
+
+
+
 		multas = new Queue<>();
 		estaciones = new Queue<>();
 
-		ComparadorCantidadMultas c = new ComparadorCantidadMultas();
-		verticesPorCantidadMultas = new MaxPQ<>(228050, c);
 
 
 
 
+		cantidadMultasEdge = new LinearProbingHashST<Edge, Integer>();
 
-		enteroAVertice = new Vertice[228050];
+		enteroAInterseccion = new Interseccion[228050];
 
 	}
 
@@ -94,9 +95,12 @@ public class Modelo {
 		String pathVertex = "./data/Json_Vertices"; 
 		JsonReader lectorVertices;
 
+
 		lectorVertices = new JsonReader(new FileReader(pathVertex));
 		JsonElement elementoV =  JsonParser.parseReader(lectorVertices);
 		JsonArray listaVertices = elementoV.getAsJsonArray();
+
+		mayorInterseccion = new Interseccion(-1, new LatLng(0.0, 0.0));
 		for(JsonElement e : listaVertices)
 		{
 			JsonObject o = e.getAsJsonObject();
@@ -105,14 +109,12 @@ public class Modelo {
 			double lat = val.get("b").getAsDouble();
 			double lon = val .get("a").getAsDouble();
 			LatLng llVal = new LatLng(lat, lon); 
-			Vertice v = new Vertice(key, llVal);
+			Interseccion v = new Interseccion(key, llVal);
 
 
-			enteroAVertice[key] = v;
-
+			enteroAInterseccion[key] = v;
 			grafo.addVertex(v);
-
-			verticesPorCantidadMultas.insert(v);
+			if(v.getKey() > mayorInterseccion.getKey()) mayorInterseccion = v;
 
 		}
 
@@ -120,9 +122,10 @@ public class Modelo {
 		lectorArcos = new JsonReader(new FileReader(pathArcos));
 		JsonElement elementoE =  JsonParser.parseReader(lectorArcos);
 		JsonArray listaEdges = elementoE.getAsJsonArray();
-		System.out.println("Cargando edges Va a tradar demasiado");
-
-		System.out.println("Cargando arcos esto va a tardar varios minutos");
+		int mayorOrigen = -1;
+		int mayorDestino = -1;
+		double mayorPeso = -1;
+		System.out.println("Agregando Arcos");
 		for(JsonElement e : listaEdges)
 		{
 			JsonObject o = e.getAsJsonObject();
@@ -132,27 +135,25 @@ public class Modelo {
 
 
 			int from = o.get("from").getAsInt();
-			Vertice vFrom = enteroAVertice[from]; 
+			Interseccion vFrom = enteroAInterseccion[from]; 
 
 
 			int to = o.get("to").getAsInt();
-			Vertice vTo = enteroAVertice[to]; 
-
+			Interseccion vTo = enteroAInterseccion[to]; 
 
 			grafo.addEdge(vFrom, vTo, peso);	
-			System.out.println(from);
+
+			if(from > mayorOrigen || to > mayorDestino)
+			{
+				mayorOrigen = from;
+				mayorDestino = to;
+				mayorPeso = peso;
+			}
 
 
 		}
-
-
-		System.out.println("Arcos: " + grafo.E());
-		System.out.println("Vertices" + grafo.V());
-
-
-
-
-
+		mayorEdge = new Edge(mayorOrigen, mayorDestino, mayorPeso);
+		System.out.println("Arcos agregados");
 	}
 
 	private void cargarEstaciones() throws FileNotFoundException
@@ -160,6 +161,8 @@ public class Modelo {
 		String path = "./data/estacionpolicia.geojson";
 		JsonReader lector;
 		InputStream inputstream = new FileInputStream(path);
+		mayorEstacion = null;
+		int mayorId = -1;
 
 		try 
 		{
@@ -183,8 +186,13 @@ public class Modelo {
 				String local = objeto.get("EPOIULOCAL").getAsString();
 
 				Estacion estacion = new Estacion(lat, lon, id, nombre, telefono, dir, descripcion, servicio, horario, local);
-				pqEstacion.insert(estacion);
+
 				estaciones.enqueue(estacion);
+				if(estacion.getId() > mayorId)
+				{
+					mayorId = estacion.getId();
+					mayorEstacion = estacion;
+				}
 
 			}
 
@@ -197,9 +205,11 @@ public class Modelo {
 	}
 	private void cargarMultas() throws ParseException, FileNotFoundException
 	{
-		String path = "./data/comparendos.geojson";
+		String path = "./data/small_comparendos.txt";
 		JsonReader lector;
 		InputStream inputstream = new FileInputStream(path);
+		System.out.println("Cargando multas");
+		
 
 		try {
 
@@ -208,6 +218,9 @@ public class Modelo {
 			JsonObject ja = elem.getAsJsonObject();
 
 			JsonArray features = ja.getAsJsonArray("features");
+			mayorMulta = null;
+			long mayorid = -1;
+			int j = 0;
 
 
 			for(JsonElement e : features)
@@ -252,8 +265,12 @@ public class Modelo {
 
 				Multa multa = new Multa(id, fecha, medioDete, claseVehiculo, tipoServicio, infraccion, descripcion, localidad, municipio, geometria);
 
-				pqMultas.insert(multa);
 				multas.enqueue(multa);
+				if(multa.getId() > mayorid)
+				{
+					mayorid = multa.getId();
+					mayorMulta = multa;
+				}
 			} //llave for grande
 
 
@@ -290,114 +307,159 @@ public class Modelo {
 
 
 		System.out.println("\n\n\n ======================================================================\n");
-		System.out.println("Total comparendos en el archivo: " + pqMultas.size());
+		System.out.println("Total comparendos en el archivo: " + multas.size());
 
-		Multa multaMayor = pqMultas.delMax();
-		System.out.println("La multa con el mayor id es: " + multaMayor.toString());
 
-		System.out.println("Total de estaciones de policia del archivo es: " + pqEstacion.size());
+		System.out.println("La multa con el mayor id es: " + mayorMulta.toString());
 
-		Estacion mayorEstacion = pqEstacion.delMax();
-		System.out.println(mayorEstacion.toString());
+		System.out.println("Total de estaciones de policia del archivo es: " + estaciones.size());
+
+	
+		System.out.println("La mayo estacion es: " + mayorEstacion.toString());
 
 		System.out.println("El total de vertices es  " + grafo.V());
 
-		Vertice mayorVertice = grafo.getMaxVert();
-		System.out.println(mayorVertice.getKey());
+
+		System.out.println("La mayor Interseccion es: " + mayorInterseccion.toString());
 
 		System.out.println("El total de arcos es: " + grafo.E());
 
-		Vertice mayorEdge = grafo.getMaxEdge();
-		System.out.println("EL mayor arco es: " + mayorEdge.getKey());
+
+		System.out.println("EL mayor arco es: " + mayorEdge.toString());
 		System.out.println("\n ============================================================================== \n\n\n");
+		adicionarInformacion();
+		agregarMultasEdge();
+		adicionarEstacionesAlGrafo();
+		System.out.println("================================================================================================\n\n\n");
+
 
 	}
 
-	public Vertice darVerticeMasCercano(double lat, double lng)
+	private Interseccion darInterseccionMasCercana(double lat, double lng)
 	{
-		Vertice masCercano = null;
+		Interseccion masCercano = null;
 		double distanciaMasCercana = Integer.MAX_VALUE;
-		for(Vertice actual : grafo.getVertices())
+		for(Interseccion actual : enteroAInterseccion)
 		{
-			double latActual = actual.getLat();
-			double lngActual = actual.getLng();
-			double distanciaActual = haversine.distance(lat, lng, latActual, lngActual);
-			if( distanciaActual < distanciaMasCercana)
+			if(actual != null)
 			{
-				distanciaMasCercana = distanciaActual;
-				masCercano = actual;
+				double latActual = actual.getLat();
+				double lngActual = actual.getLng();
+				double distanciaActual = Haversine.distance(lat, lng, latActual, lngActual);
+				if( distanciaActual < distanciaMasCercana)
+				{
+					distanciaMasCercana = distanciaActual;
+					masCercano = actual;
+				}	
 			}
+
 		}
 		return masCercano;
 	}
 
-	public void adicionarInformacion()
+	private void adicionarInformacion()
 	{
+		maxPQIntersecciones = new MaxPQ<>(300, new ComparadorCantidadMultas());
 		int tamMultas = multas.size();
+		System.out.println("Aicionando las multas al vertice mas cercano");
 		for(int i = 0; i < tamMultas; i++)
 		{
 			Multa actual = multas.dequeue();
 			multas.enqueue(actual);
 			double latActual = actual.getGeo().getLat();
 			double lngActual = actual.getGeo().getLng();
-			Vertice v = darVerticeMasCercano(latActual, lngActual);
+			Interseccion v = darInterseccionMasCercana(latActual, lngActual);
 			v.agregarMulta(actual);
 			actual.setVertice(v);
-			System.out.println(v.getKey());
+			maxPQIntersecciones.insert(v);
 		}
+		System.out.println("Multas adicionadas");
 	}
 
-	public void agregarMultasEdge()
+	private void agregarMultasEdge()
 	{
-		for(Edge e : grafo.getEdges())
+		System.out.println("Agregando las multas al edge");
+		for(Edge e : grafo.darEdges())
 		{
-			Vertice from = (Vertice) e.getFromVale();
-			Vertice to = (Vertice) e.getToValue();
+			int iFrom = e.either();
+			Interseccion from = enteroAInterseccion[iFrom];
+
+			int iTo = e.other(iFrom);
+			Interseccion to = enteroAInterseccion[iTo];
+
 
 			int totalMultas = from.darComparendos().size() +  to.darComparendos().size();
 
-			grafo.setCantidadMultasEdge(e, totalMultas);
-			System.out.println(from.getKey()+ " "+ totalMultas);
+
+			cantidadMultasEdge.put(e, totalMultas);
+
 		}
+		System.out.println("Multas agregadas al edge");
 	}
 
-	public void adicionarEstacionesAlGrafo()
+	private void adicionarEstacionesAlGrafo()
 	{
+		System.out.println("adicionando estaciones al grafo");
 		for(Estacion actual : estaciones)
 		{
 			double latActual = actual.getLat();
 			double lngActual = actual.getLon();
-			Vertice v = darVerticeMasCercano(latActual, lngActual);
+			Interseccion v = darInterseccionMasCercana(latActual, lngActual);
 			v.agregarEstacion(actual);
-			System.out.println(v.getKey());
 		}
+		System.out.println("Estaciones adicionadas al grafo");
 	}
 
 	public void ObtenerCostoMinimo(double latIni, double lngIni, double latFin, double lngFin)
 	{
 		if(estaDentroBogota(latIni, lngIni) && estaDentroBogota(latFin, lngFin))
 		{
-			Vertice origen = darVerticeMasCercano(latIni, lngIni);
-			Vertice Destino = darVerticeMasCercano(latFin, lngFin);
-			List<String> lista = grafo.getPath(origen, Destino);
-			LatLng[] camino = new LatLng[lista.size()-1];
-			for(int i = 0; i < lista.size()-1; i++ )
+			Interseccion origen = darInterseccionMasCercana(latIni, lngIni);
+
+			Interseccion destino = darInterseccionMasCercana(latFin, lngFin);
+
+			Iterable<Interseccion> cosa = grafo.caminoMasCorto(origen, destino);
+			Iterator<Interseccion> iter = cosa.iterator();
+			Queue<Interseccion> lista = new Queue<Interseccion>();
+			while(iter.hasNext())
 			{
-				String[] datos = lista.get(i).split(":");
-				String id = datos[0];
-				String lat = datos[1];
-				String lng = datos[2];
-				String distanciaMinima = datos[3];
-				System.out.println(" el id es: " + id + " la latitud es: " + lat + " la longitud es: "
-						+ lng + " la distancia minima es: " + distanciaMinima);
+				lista.enqueue(iter.next());
+			}
+
+			LatLng[] camino = new LatLng[lista.size()/2];
+
+			System.out.println("La cantidad de intersecciones es" + lista.size());
+			int i = 0;
+			while(lista.size() >= 2)
+			{
+
+				Interseccion from = lista.dequeue();
+				int fromId = from.getKey();
+				double latfrom = from.getLat();
+				double lngfrom = from.getLng();
+				camino[i] = new LatLng(latfrom, lngfrom);
+				i++;
+
+				Interseccion to = lista.dequeue();
+				int idTo = to.getKey();
+				double latTo = to.getLat();
+				double lngTo = to.getLng();
+
+
+				System.out.println(" el id orige es: " + fromId + " la latitud es: " + latfrom + 
+						" la longitud es: " + lngfrom );
+				System.out.println("el id de destino es: " + idTo +" La latitud es: " + latTo + 
+						" la longitud es " + lngTo);
+
 
 			}
-			String totalDistancia = lista.get(lista.size()-1);
-			System.out.println("el total de a distancia es: " + totalDistancia);
-			System.out.println("La cantidad de nodos es: " + lista.size());
+			System.out.println("la cantidad de arcos es: " + lista.size()/2);
+			System.out.println("La distancia total es: " + grafo.distancia(origen, destino));
 
 			Mapa mapa = new Mapa("Camino mas corto");
-			mapa.GenerateLine(true, camino);
+
+
+			mapa.GenerateLine(false, camino);
 
 		}
 		else
@@ -423,39 +485,44 @@ public class Modelo {
 	public void A2(int m)
 	{
 		long ini = System.currentTimeMillis();
-		Vertice[] vertices = new Vertice[m];
+		Interseccion[] vertices = new Interseccion[m];
 		for(int i = 0; i < m; i++)
 		{
-			vertices[i] = verticesPorCantidadMultas.delMax();
+			vertices[i] = maxPQIntersecciones.delMax();
 		}
 		for(int i = 0; i < m; i++)
 		{
-			verticesPorCantidadMultas.insert(vertices[i]);
+			maxPQIntersecciones.insert(vertices[i]);
 		}
 		int CostoMonetario = 0;
 		int totalVertices = 0; 
-		DynamicArray<LatLng> latlngs = new DynamicArray<LatLng>();
+		Queue<LatLng> latlngs = new Queue<LatLng>();
 		for(int i = 0; i < m-1; i++)
 		{
-			Vertice origen = vertices[i];
-			Vertice destino = vertices[i+1];
-			List<String> caminoActual = grafo.getPath(origen, destino);
-			
-			for(int j = 0; j < caminoActual.size() - 1; j++ )
+			Interseccion origen = vertices[i];
+			Interseccion destino = vertices[i+1];
+			Queue<Interseccion> caminoActual = new Queue<Interseccion>();
+			Iterable<Interseccion> cosa = grafo.caminoMasCorto(origen, destino);
+			Iterator<Interseccion> iter = cosa.iterator();
+			while(iter.hasNext())
+			{
+				caminoActual.enqueue(iter.next());
+			}
+			while(caminoActual.size() > 2)
 			{		
-				
+
 				String[] datos = caminoActual.get(i).split(":");
 				String id = datos[0];
 				String lat = datos[1];
 				String lng = datos[2];
 				String distanciaMinima = datos[3];
 				totalVertices++;
-				Vertice edgeOrigen = enteroAVertice[Integer.parseInt(id)];
-				 
+				Vertice edgeOrigen = enteroAInterseccion[Integer.parseInt(id)];
+
 				int idSiguiente = Integer.parseInt(caminoActual.get(i+1).split(":")[0]);
-				
+
 				System.out.println("El Arco va de: " + id + " " + idSiguiente  );
-				
+
 				LatLng latLng = new LatLng(Integer.parseInt(lat), Integer.parseInt(lng));
 				latlngs.add(latLng);
 			}
@@ -465,7 +532,7 @@ public class Modelo {
 		System.out.println("El total de vertices es de: " + totalVertices);
 		long fin = System.currentTimeMillis();
 		System.out.println("Tiempo total es de: " + (fin-ini));
-		
+
 		Mapa mapa = new Mapa("Red de camaras");
 		mapa.GenerateLine(false, latlngs.darArreglo());
 		for(int i = 0; i < m; i++)
@@ -474,7 +541,7 @@ public class Modelo {
 			double longitud = vertices[i].getLng();
 			LatLng porFavorMateneme = new LatLng(latitud, longitud);
 			mapa.generateMarker(porFavorMateneme);
-					
+
 		}
 
 

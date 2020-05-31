@@ -31,16 +31,16 @@ public class Multa implements Comparable<Multa>
 	
 	private int numeroDiasEspera;
 	
-	private Vertice vertice;
+	private Interseccion vertice;
 
 
 
 
-	public Vertice getVertice() {
+	public Interseccion getVertice() {
 		return vertice;
 	}
 
-	public void setVertice(Vertice vertices) {
+	public void setVertice(Interseccion vertices) {
 		this.vertice = vertices;
 	}
 

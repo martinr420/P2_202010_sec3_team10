@@ -1,16 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <class-diagram version="1.2.3" icons="true" automaticImage="PNG" always-add-relationships="false" generalizations="true" 
   realizations="true" associations="true" dependencies="false" nesting-relationships="true" router="FAN">  
-  <class id="1" language="java" name="model.logic.Edge" project="P3" file="/P3/src/model/logic/Edge.java" binary="false" 
-    corner="BOTTOM_RIGHT">    
-    <position height="-1" width="-1" x="-47" y="157"/>    
-    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
-      sort-features="false" accessors="true" visibility="true">      
-      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
-      <operations public="true" package="true" protected="true" private="true" static="true"/>    
-    </display>  
-  </class>  
-  <class id="2" language="java" name="model.logic.Estacion" project="P3" file="/P3/src/model/logic/Estacion.java" 
+  <class id="1" language="java" name="model.logic.Estacion" project="P3" file="/P3/src/model/logic/Estacion.java" 
     binary="false" corner="BOTTOM_RIGHT">    
     <position height="405" width="249" x="340" y="-19"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
@@ -19,7 +10,7 @@
       <operations public="true" package="true" protected="true" private="true" static="true"/>    
     </display>  
   </class>  
-  <class id="3" language="java" name="model.logic.Geo" project="P3" file="/P3/src/model/logic/Geo.java" binary="false" 
+  <class id="2" language="java" name="model.logic.Geo" project="P3" file="/P3/src/model/logic/Geo.java" binary="false" 
     corner="BOTTOM_RIGHT">    
     <position height="-1" width="-1" x="744" y="93"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
@@ -28,7 +19,7 @@
       <operations public="true" package="true" protected="true" private="true" static="true"/>    
     </display>  
   </class>  
-  <class id="4" language="java" name="model.logic.Haversine" project="P3" file="/P3/src/model/logic/Haversine.java" 
+  <class id="3" language="java" name="model.logic.Haversine" project="P3" file="/P3/src/model/logic/Haversine.java" 
     binary="false" corner="BOTTOM_RIGHT">    
     <position height="-1" width="-1" x="68" y="554"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
@@ -37,7 +28,7 @@
       <operations public="true" package="true" protected="true" private="true" static="true"/>    
     </display>  
   </class>  
-  <class id="5" language="java" name="model.logic.Intereccion" project="P3" file="/P3/src/model/logic/Intereccion.java" 
+  <class id="4" language="java" name="model.logic.Intereccion" project="P3" file="/P3/src/model/logic/Intereccion.java" 
     binary="false" corner="BOTTOM_RIGHT">    
     <position height="-1" width="-1" x="66" y="-85"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
@@ -46,7 +37,7 @@
       <operations public="true" package="true" protected="true" private="true" static="true"/>    
     </display>  
   </class>  
-  <class id="6" language="java" name="model.logic.Mapa" project="P3" file="/P3/src/model/logic/Mapa.java" binary="false" 
+  <class id="5" language="java" name="model.logic.Mapa" project="P3" file="/P3/src/model/logic/Mapa.java" binary="false" 
     corner="BOTTOM_RIGHT">    
     <position height="-1" width="-1" x="167" y="174"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
@@ -55,7 +46,7 @@
       <operations public="true" package="true" protected="true" private="true" static="true"/>    
     </display>  
   </class>  
-  <class id="7" language="java" name="model.logic.Modelo" project="P3" file="/P3/src/model/logic/Modelo.java" 
+  <class id="6" language="java" name="model.logic.Modelo" project="P3" file="/P3/src/model/logic/Modelo.java" 
     binary="false" corner="BOTTOM_RIGHT">    
     <position height="-1" width="-1" x="386" y="626"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
@@ -64,16 +55,7 @@
       <operations public="true" package="true" protected="true" private="true" static="true"/>    
     </display>  
   </class>  
-  <class id="8" language="java" name="model.logic.Multa.Multa" project="P3" file="/P3/src/model/logic/Multa.java" 
-    binary="false" corner="BOTTOM_RIGHT">    
-    <position height="-1" width="-1" x="738" y="935"/>    
-    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
-      sort-features="false" accessors="true" visibility="true">      
-      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
-      <operations public="true" package="true" protected="true" private="true" static="true"/>    
-    </display>  
-  </class>  
-  <class id="9" language="java" name="model.logic.Multa" project="P3" file="/P3/src/model/logic/Multa.java" 
+  <class id="7" language="java" name="model.logic.Multa" project="P3" file="/P3/src/model/logic/Multa.java" 
     binary="false" corner="BOTTOM_RIGHT">    
     <position height="-1" width="-1" x="681" y="427"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
@@ -82,17 +64,8 @@
       <operations public="true" package="true" protected="true" private="true" static="true"/>    
     </display>  
   </class>  
-  <class id="10" language="java" name="model.logic.Vertice" project="P3" file="/P3/src/model/logic/Vertice.java" 
-    binary="false" corner="BOTTOM_RIGHT">    
-    <position height="297" width="128" x="121" y="736"/>    
-    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
-      sort-features="false" accessors="true" visibility="true">      
-      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
-      <operations public="true" package="true" protected="true" private="true" static="true"/>    
-    </display>  
-  </class>  
-  <class id="11" language="java" name="model.logic.Vias" project="P3" file="/P3/src/model/logic/Vias.java" 
-    binary="false" corner="BOTTOM_RIGHT">    
+  <class id="8" language="java" name="model.logic.Vias" project="P3" file="/P3/src/model/logic/Vias.java" binary="false" 
+    corner="BOTTOM_RIGHT">    
     <position height="-1" width="-1" x="101" y="669"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
       sort-features="false" accessors="true" visibility="true">      
@@ -100,24 +73,28 @@
       <operations public="true" package="true" protected="true" private="true" static="true"/>    
     </display>  
   </class>  
-  <association id="12">    
-    <end type="SOURCE" refId="7" navigable="false">      
-      <attribute id="13" name="haversine"/>      
-      <multiplicity id="14" minimum="0" maximum="1"/>    
-    </end>    
-    <end type="TARGET" refId="4" navigable="true"/>    
-    <display labels="true" multiplicity="true"/>  
-  </association>  
-  <nesting id="15">    
-    <end type="SOURCE" refId="9"/>    
-    <end type="TARGET" refId="8"/>  
-  </nesting>  
-  <association id="16">    
-    <end type="SOURCE" refId="9" navigable="false">      
-      <attribute id="17" name="geo"/>      
-      <multiplicity id="18" minimum="0" maximum="1"/>    
+  <association id="9">    
+    <end type="SOURCE" refId="6" navigable="false">      
+      <attribute id="10" name="haversine">        
+        <position height="0" width="0" x="0" y="0"/>      
+      </attribute>      
+      <multiplicity id="11" minimum="0" maximum="1">        
+        <position height="0" width="0" x="0" y="0"/>      
+      </multiplicity>    
     </end>    
     <end type="TARGET" refId="3" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <association id="12">    
+    <end type="SOURCE" refId="7" navigable="false">      
+      <attribute id="13" name="geo">        
+        <position height="0" width="0" x="0" y="0"/>      
+      </attribute>      
+      <multiplicity id="14" minimum="0" maximum="1">        
+        <position height="0" width="0" x="0" y="0"/>      
+      </multiplicity>    
+    </end>    
+    <end type="TARGET" refId="2" navigable="true"/>    
     <display labels="true" multiplicity="true"/>  
   </association>  
   <classifier-display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
