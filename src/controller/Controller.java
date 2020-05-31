@@ -60,7 +60,7 @@ public class Controller {
 			case 3:
 				System.out.println("ingrese la cantidad de camaras");
 				int numero = lector.nextInt();
-				modelo.A2(numero);
+				modelo.generarRed(numero);
 				break;
 
 

@@ -211,10 +211,36 @@ public class GrafoNoDirigido <K>
 		return dist;
 	}
 	
-	public PrimMST mst()
+	public GrafoNoDirigido<K> mst()
+	{
+	
+		
+		PrimMST mst = new PrimMST(grafo);
+		Iterable<Edge> edges = mst.edges();
+		Queue<K> llaves = new Queue<K>();
+		GrafoNoDirigido<K> st = new GrafoNoDirigido<K>(V());
+		for(Edge edge : edges)
+		{
+			String[] info = edge.toString().split(":");
+			int iFrom = Integer.parseInt(info[0]);
+			K from = enteroALlave.get(iFrom);
+			
+			int iTo = Integer.parseInt(info[1]);
+			K to = enteroALlave.get(iTo);
+			
+			double peso = Double.parseDouble(info[2]);
+			
+			st.addVertex(from);
+			st.addVertex(to);
+			st.addEdge(from, to, peso);
+		}
+		return st;
+	
+	}
+	public double pesoMST()
 	{
 		PrimMST mst = new PrimMST(grafo);
-		return mst;
+		return mst.weight();
 	}
 	public GlobalMincut corte()
 	{
@@ -229,6 +255,21 @@ public class GrafoNoDirigido <K>
 	public Iterable<Edge> darEdges()
 	{
 		return grafo.edges();
+	}
+	
+	public Queue<K> darLlavesEdge(Edge pEdge)
+	{
+		String[] info = pEdge.toString().split(":");
+		int iFrom = Integer.parseInt(info[0]);
+		K from = enteroALlave.get(iFrom);
+		
+		int iTo = Integer.parseInt(info[1]);
+		K to = enteroALlave.get(iTo);
+
+		Queue<K> llaves = new Queue<>();
+		llaves.enqueue(from);
+		llaves.enqueue(to);
+		return llaves;
 	}
 
 	

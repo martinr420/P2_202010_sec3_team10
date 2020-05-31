@@ -52,7 +52,6 @@ public class Mapa extends MapView{
 			marker.setPosition(pos);
 			map.setCenter(pos);
 	
-		System.out.println("Graficado marker");
 		return marker;
 	}
 

@@ -28,6 +28,7 @@ public class Edge implements Comparable<Edge> {
     private final int v;
     private final int w;
     private double weight;
+    private int multas;
 
     /**
      * Initializes an edge between vertices {@code v} and {@code w} of
@@ -47,9 +48,24 @@ public class Edge implements Comparable<Edge> {
         this.v = v;
         this.w = w;
         this.weight = weight;
+        multas = 0;
     }
+    
+ 
 
-    /**
+    public int getMultas() {
+		return multas;
+	}
+
+
+
+	public void setMultas(int multas) {
+		this.multas = multas;
+	}
+
+
+
+	/**
      * Returns the weight of this edge.
      *
      * @return the weight of this edge

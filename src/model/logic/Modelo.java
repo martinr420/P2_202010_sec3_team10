@@ -6,6 +6,7 @@ import java.lang.ProcessBuilder.Redirect.Type;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.concurrent.TimeUnit;
@@ -56,12 +57,12 @@ public class Modelo {
 	private Queue<Multa> multas;
 	private GrafoNoDirigido<Interseccion> grafo;
 	private Interseccion[] enteroAInterseccion;
-	private LinearProbingHashST<Edge, Integer> cantidadMultasEdge;
 	private Multa mayorMulta;
 	private Estacion mayorEstacion;
 	private Interseccion mayorInterseccion;
 	private Edge mayorEdge;
 	private MaxPQ<Interseccion> maxPQIntersecciones;
+	private MaxPQ<Edge> maxPQEdge;
 
 
 
@@ -79,7 +80,7 @@ public class Modelo {
 
 
 
-		cantidadMultasEdge = new LinearProbingHashST<Edge, Integer>();
+		maxPQEdge = new MaxPQ<>(grafo.E(), new ComparadorEdges());
 
 		enteroAInterseccion = new Interseccion[228050];
 
@@ -391,8 +392,8 @@ public class Modelo {
 			int totalMultas = from.darComparendos().size() +  to.darComparendos().size();
 
 
-			cantidadMultasEdge.put(e, totalMultas);
-
+			e.setMultas(totalMultas);
+			maxPQEdge.insert(e);
 		}
 		System.out.println("Multas agregadas al edge");
 	}
@@ -482,68 +483,46 @@ public class Modelo {
 		}	
 	}
 
-	public void A2(int m)
+	public void generarRed(int m)
 	{
+		System.out.println("generando red");
 		long ini = System.currentTimeMillis();
-		Interseccion[] vertices = new Interseccion[m];
+		double costoMonetario = 0;
+		Edge[] edges = new Edge[m];
+	
+		Queue<Interseccion> intersecciones = new Queue<Interseccion>();
+		Mapa map = new Mapa("Red");
 		for(int i = 0; i < m; i++)
 		{
-			vertices[i] = maxPQIntersecciones.delMax();
+			Edge actual = maxPQEdge.delMax();
+			edges[i] = actual;
+			Queue<Interseccion> q = grafo.darLlavesEdge(actual);
+			Interseccion from = q.dequeue();
+			Interseccion to = q.dequeue();
+			System.out.println("de " + from.getKey() + " a " + to.getKey() + "Con un total de ultas de: " + actual.getMultas());
+			double latini = from.getLat();
+			double lngIni = from.getLng();
+			LatLng origen = new LatLng(latini,lngIni);
+			
+			double latFin = to.getLat();
+			double lngFin = to.getLng();
+			LatLng destino = new LatLng(latFin, lngFin);
+			
+			map.generateSimplePath(origen, destino, true);
+			
+			
 		}
-		for(int i = 0; i < m; i++)
+		for(Edge i : edges)
 		{
-			maxPQIntersecciones.insert(vertices[i]);
+			maxPQEdge.insert(i);
 		}
-		int CostoMonetario = 0;
-		int totalVertices = 0; 
-		Queue<LatLng> latlngs = new Queue<LatLng>();
-		for(int i = 0; i < m-1; i++)
-		{
-			Interseccion origen = vertices[i];
-			Interseccion destino = vertices[i+1];
-			Queue<Interseccion> caminoActual = new Queue<Interseccion>();
-			Iterable<Interseccion> cosa = grafo.caminoMasCorto(origen, destino);
-			Iterator<Interseccion> iter = cosa.iterator();
-			while(iter.hasNext())
-			{
-				caminoActual.enqueue(iter.next());
-			}
-			while(caminoActual.size() > 2)
-			{		
-
-				String[] datos = caminoActual.get(i).split(":");
-				String id = datos[0];
-				String lat = datos[1];
-				String lng = datos[2];
-				String distanciaMinima = datos[3];
-				totalVertices++;
-				Vertice edgeOrigen = enteroAInterseccion[Integer.parseInt(id)];
-
-				int idSiguiente = Integer.parseInt(caminoActual.get(i+1).split(":")[0]);
-
-				System.out.println("El Arco va de: " + id + " " + idSiguiente  );
-
-				LatLng latLng = new LatLng(Integer.parseInt(lat), Integer.parseInt(lng));
-				latlngs.add(latLng);
-			}
-			CostoMonetario += Integer.parseInt(caminoActual.get(caminoActual.size()-1));
-		}
-		System.out.println("el costo monetario es de:" + CostoMonetario * 10000);
-		System.out.println("El total de vertices es de: " + totalVertices);
+	
 		long fin = System.currentTimeMillis();
-		System.out.println("Tiempo total es de: " + (fin-ini));
-
-		Mapa mapa = new Mapa("Red de camaras");
-		mapa.GenerateLine(false, latlngs.darArreglo());
-		for(int i = 0; i < m; i++)
-		{
-			double latitud = vertices[i].getLat();
-			double longitud = vertices[i].getLng();
-			LatLng porFavorMateneme = new LatLng(latitud, longitud);
-			mapa.generateMarker(porFavorMateneme);
-
-		}
-
+		System.out.println("Tiempo: " + (fin-ini));
+		
+		
+		
+		
 
 	}
 
