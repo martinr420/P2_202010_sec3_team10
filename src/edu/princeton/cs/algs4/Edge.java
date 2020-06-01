@@ -53,8 +53,8 @@ public class Edge implements Comparable<Edge> {
     
  
 
-    public int getMultas() {
-		return multas;
+    public double getMultas() {
+		return (double) multas;
 	}
 
 
@@ -70,7 +70,8 @@ public class Edge implements Comparable<Edge> {
      *
      * @return the weight of this edge
      */
-    public double weight() {
+    public double weight() 
+    {
         return weight;
     }
 

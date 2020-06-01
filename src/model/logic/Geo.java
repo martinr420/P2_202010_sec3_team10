@@ -35,11 +35,11 @@ public class Geo {
 	}
 	public double getLat()
 	{
-		return coordenadas[0];
+		return coordenadas[1];
 	}
 	public double getLng()
 	{
-		return coordenadas[1];
+		return coordenadas[0];
 	}
 	
 	public String toString()

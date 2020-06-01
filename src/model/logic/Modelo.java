@@ -355,6 +355,7 @@ public class Modelo {
 			}
 
 		}
+	
 		return masCercano;
 	}
 
@@ -362,7 +363,7 @@ public class Modelo {
 	{
 		maxPQIntersecciones = new MaxPQ<>(300, new ComparadorCantidadMultas());
 		int tamMultas = multas.size();
-		System.out.println("Aicionando las multas al vertice mas cercano");
+		System.out.println("Adicionando las multas al vertice mas cercano");
 		for(int i = 0; i < tamMultas; i++)
 		{
 			Multa actual = multas.dequeue();
@@ -373,6 +374,7 @@ public class Modelo {
 			v.agregarMulta(actual);
 			actual.setVertice(v);
 			maxPQIntersecciones.insert(v);
+			
 		}
 		System.out.println("Multas adicionadas");
 	}
@@ -382,11 +384,9 @@ public class Modelo {
 		System.out.println("Agregando las multas al edge");
 		for(Edge e : grafo.darEdges())
 		{
-			int iFrom = e.either();
-			Interseccion from = enteroAInterseccion[iFrom];
-
-			int iTo = e.other(iFrom);
-			Interseccion to = enteroAInterseccion[iTo];
+			Queue<Interseccion> q = grafo.darLlavesEdge(e); 
+			Interseccion from = q.dequeue();	
+			Interseccion to = q.dequeue();
 
 
 			int totalMultas = from.darComparendos().size() +  to.darComparendos().size();
@@ -427,6 +427,7 @@ public class Modelo {
 				lista.enqueue(iter.next());
 			}
 
+			int cantidadDeArcos = lista.size()/2;
 			LatLng[] camino = new LatLng[lista.size()/2];
 
 			System.out.println("La cantidad de intersecciones es" + lista.size());
@@ -450,11 +451,11 @@ public class Modelo {
 				System.out.println(" el id orige es: " + fromId + " la latitud es: " + latfrom + 
 						" la longitud es: " + lngfrom );
 				System.out.println("el id de destino es: " + idTo +" La latitud es: " + latTo + 
-						" la longitud es " + lngTo);
+						" la longitud es " + lngTo +"\n\n\n");
 
 
 			}
-			System.out.println("la cantidad de arcos es: " + lista.size()/2);
+			System.out.println("la cantidad de arcos es: " + cantidadDeArcos);
 			System.out.println("La distancia total es: " + grafo.distancia(origen, destino));
 
 			Mapa mapa = new Mapa("Camino mas corto");
@@ -495,11 +496,12 @@ public class Modelo {
 		for(int i = 0; i < m; i++)
 		{
 			Edge actual = maxPQEdge.delMax();
+			costoMonetario += actual.weight();
 			edges[i] = actual;
 			Queue<Interseccion> q = grafo.darLlavesEdge(actual);
 			Interseccion from = q.dequeue();
 			Interseccion to = q.dequeue();
-			System.out.println("de " + from.getKey() + " a " + to.getKey() + "Con un total de ultas de: " + actual.getMultas());
+			System.out.println("de " + from.getKey() + " a " + to.getKey() + " Con un total de multas de: " + actual.getMultas());
 			double latini = from.getLat();
 			double lngIni = from.getLng();
 			LatLng origen = new LatLng(latini,lngIni);
@@ -517,79 +519,87 @@ public class Modelo {
 			maxPQEdge.insert(i);
 		}
 	
+		System.out.println("El cosot monetario es: " + costoMonetario*10000);
 		long fin = System.currentTimeMillis();
 		System.out.println("Tiempo: " + (fin-ini));
-		
-		
-		
-		
+	}
+	
+	public void ObtenerCostoMinimoMultas(double latIni, double lngIni, double latFin, double lngFin)
+	{
+		if(estaDentroBogota(latIni, lngIni) && estaDentroBogota(latFin, lngFin))
+		{
+			Interseccion origen = darInterseccionMasCercana(latIni, lngIni);
 
+			Interseccion destino = darInterseccionMasCercana(latFin, lngFin);
+
+			Iterable<Interseccion> cosa = grafo.caminoMasCortoMultas(origen, destino);
+			Iterator<Interseccion> iter = cosa.iterator();
+			Queue<Interseccion> lista = new Queue<Interseccion>();
+			while(iter.hasNext())
+			{
+				lista.enqueue(iter.next());
+			}
+
+			int cantidadDeArcos = lista.size()/2;
+			LatLng[] camino = new LatLng[lista.size()/2];
+
+			System.out.println("La cantidad de intersecciones es" + lista.size());
+			int i = 0;
+			while(lista.size() >= 2)
+			{
+
+				Interseccion from = lista.dequeue();
+				int fromId = from.getKey();
+				double latfrom = from.getLat();
+				double lngfrom = from.getLng();
+				camino[i] = new LatLng(latfrom, lngfrom);
+				i++;
+
+				Interseccion to = lista.dequeue();
+				int idTo = to.getKey();
+				double latTo = to.getLat();
+				double lngTo = to.getLng();
+
+
+				System.out.println(" el id orige es: " + fromId + " la latitud es: " + latfrom + 
+						" la longitud es: " + lngfrom );
+				System.out.println("el id de destino es: " + idTo +" La latitud es: " + latTo + 
+						" la longitud es " + lngTo +"\n\n\n");
+			}
+			System.out.println("la cantidad de arcos es: " + cantidadDeArcos);
+			System.out.println("La distancia total es: " + grafo.distancia(origen, destino));
+
+			Mapa mapa = new Mapa("Camino mas corto");
+
+
+			mapa.GenerateLine(false, camino);
+
+		}
+		else
+		{
+			System.out.println("coordenadas fuera de alcanze");
+			Mapa mapa = new Mapa("Fuera de alcanze");
+			LatLng vert1 = new LatLng(LATITUD_MIN, LONGITUD_MIN);
+			LatLng vert2 = new LatLng(LATITUD_MAX, LONGITUD_MIN);
+			LatLng vert3 = new LatLng(LATITUD_MAX, LONGITUD_MAX);
+			LatLng vert4 = new LatLng(LATITUD_MIN, LONGITUD_MAX);
+
+			mapa.GenerateLine(false, vert1, vert2, vert3, vert4);
+
+			LatLng punto1 = new LatLng(latIni,lngIni);
+			mapa.generateMarker(punto1);
+
+			LatLng punto2 = new LatLng(latFin, lngFin);
+			mapa.generateMarker(punto2);
+
+		}	
+	}
+	
+	public void generarRed2()
+	{
+		
 	}
 
-
-
-
-
-
-
-
-
-
-	//	public void graficar()
-	//	{
-	//
-	//		final Mapa mapa = new Mapa("test");
-	//
-	//		LatLng vert1 = new LatLng(LATITUD_MIN, LONGITUD_MIN);
-	//		LatLng vert2 = new LatLng(LATITUD_MAX, LONGITUD_MIN);
-	//		LatLng vert3 = new LatLng(LATITUD_MAX, LONGITUD_MAX);
-	//		LatLng vert4 = new LatLng(LATITUD_MIN, LONGITUD_MAX);
-	//
-	//		mapa.GenerateLine(false, vert1, vert2, vert3, vert4);
-	//		for(Estacion estacion : qEstacion)
-	//		{
-	//			double lat = estacion.getLat();
-	//			double lon = estacion.getLon();
-	//			mapa.generateMarker(new LatLng(lat, lon));
-	//		}
-	//
-	//		for(Vertice v : qVertice)
-	//		{
-	//			double lat = v.getLat();
-	//			double lon = v.getLong();
-	//			if(estaDentro(LATITUD_MIN, LONGITUD_MIN, LATITUD_MAX, LONGITUD_MAX, lat, lon))
-	//			{
-	//				mapa.generateArea(new LatLng(lat, lon), 5.0);
-	//			}
-	//
-	//		}
-	//		for (Edge e : qEdge)
-	//		{
-	//			int from = (int) e.getFrom();
-	//			int to = (int ) e.getTo();
-	//
-	//			String fromS = grafo.getValueVertex(from);
-	//			String toS = grafo.getValueVertex(to);
-	//
-	//			String[] partesFrom = fromS.split("/");
-	//			String[] partesTo = toS.split("/");
-	//
-	//			double latIni = Double.parseDouble(partesFrom[1]);
-	//			double lonIni = Double.parseDouble(partesFrom[0]);
-	//			double latFin = Double.parseDouble(partesTo[1]);
-	//			double lonFin = Double.parseDouble(partesTo[0]);
-	//
-	//			if(estaDentro(LATITUD_MIN, LONGITUD_MIN, LATITUD_MAX, LONGITUD_MAX, latIni, lonIni) && estaDentro(LATITUD_MIN, LONGITUD_MIN, LATITUD_MAX, LONGITUD_MAX, latFin, lonFin) )
-	//			{
-	//				LatLng start = new LatLng(latIni, lonIni);
-	//				LatLng end = new LatLng(latFin, lonFin);
-	//				mapa.generateSimplePath(start, end, false);
-	//			}
-	//		}
-	//
-	//
-	//		System.out.println("Mapa completo");
-	//	}
 
 	private boolean estaDentro(double latMin, double lonMin, double latMax, double lonMax, double latActual, double lonActual)
 	{
@@ -601,17 +611,5 @@ public class Modelo {
 		return (lat < LATITUD_MAX && lat > LATITUD_MIN && lng < LONGITUD_MAX && lng > LONGITUD_MIN);
 	}
 
-	//	public void inicial1(double lat, double lon)
-	//	{
-	//		double dist = Double.MAX_VALUE;
-	//		
-	//		for(grafo.)
-	//		
-	//	}
-	//	public void reque1A
-
-
-
-
-
+	
 }

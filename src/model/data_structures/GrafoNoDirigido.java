@@ -16,6 +16,7 @@ import edu.princeton.cs.algs4.SeparateChainingHashST;
 public class GrafoNoDirigido <K>
 {
 	private EdgeWeightedGraph grafo;
+	private EdgeWeightedGraph grafoMultas;
 	private SeparateChainingHashST<K, Integer> llaveAEntero;
 	private SeparateChainingHashST<Integer, K> enteroALlave;
 	private boolean[] marked;
@@ -23,11 +24,12 @@ public class GrafoNoDirigido <K>
 	private int count;
 	private int V;
 	
-	public GrafoNoDirigido(int tamaNo) {
-		grafo = new EdgeWeightedGraph(tamaNo);
+	public GrafoNoDirigido(int tamano) {
+		grafo = new EdgeWeightedGraph(tamano);
+		grafoMultas = new EdgeWeightedGraph(tamano);
 		llaveAEntero = new SeparateChainingHashST<K, Integer>();
 		enteroALlave = new SeparateChainingHashST<Integer, K>();
-		id = new int[tamaNo];
+		id = new int[tamano];
 		count = 0;
 		V = 0;
 	}
@@ -182,7 +184,7 @@ public class GrafoNoDirigido <K>
 		Queue<K> llaves = new Queue<>();
 		int desde = llaveAEntero.get(from);
 		int hasta = llaveAEntero.get(to);
-		DijkstraUndirectedSP djk = new DijkstraUndirectedSP(grafo, desde);
+		DijkstraUndirectedSP djk = new DijkstraUndirectedSP(grafo, desde, false);
 		Iterable<Edge> q = djk.pathTo(hasta);
 		for(Edge e: q )
 		{
@@ -206,10 +208,46 @@ public class GrafoNoDirigido <K>
 		double dist;
 		int desde = llaveAEntero.get(from);
 		int hasta = llaveAEntero.get(to);
-		DijkstraUndirectedSP djk = new DijkstraUndirectedSP(grafo, desde);
+		DijkstraUndirectedSP djk = new DijkstraUndirectedSP(grafo, desde, false);
 		dist = djk.distTo(hasta);
 		return dist;
 	}
+	
+	public double distanciaMultas(K from, K to)
+	{
+		double dist;
+		int desde = llaveAEntero.get(from);
+		int hasta = llaveAEntero.get(to);
+		DijkstraUndirectedSP djk = new DijkstraUndirectedSP(grafo, desde, true);
+		dist = djk.distTo(hasta);
+		return dist;
+	}
+	
+	public Iterable<K> caminoMasCortoMultas(K from, K to)
+	{
+		Queue<K> llaves = new Queue<>();
+		int desde = llaveAEntero.get(from);
+		int hasta = llaveAEntero.get(to);
+		DijkstraUndirectedSP djk = new DijkstraUndirectedSP(grafo, desde, true);
+		Iterable<Edge> q = djk.pathTo(hasta);
+		for(Edge e: q )
+		{
+			String[] datos = e.toString().split(":");
+			int iFrom = Integer.parseInt(datos[0]);
+			K origen = enteroALlave.get(iFrom);
+			
+			int iTo = Integer.parseInt(datos[1]);
+			K destino = enteroALlave.get(iTo);
+			
+			llaves.enqueue(origen);
+			llaves.enqueue(destino);
+			
+			
+		}
+		return llaves;
+	}
+	
+	
 	
 	public GrafoNoDirigido<K> mst()
 	{
