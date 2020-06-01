@@ -35,8 +35,8 @@ public class Controller {
 
 		while( !fin ){
 			view.printMenu();
-
 			int option = lector.nextInt();
+			
 			switch(option){
 			case 1:
 				try {
@@ -57,17 +57,38 @@ public class Controller {
 				double lng2 = Double.parseDouble(lector.next());
 				modelo.ObtenerCostoMinimo(lat1, lng1, lat2, lng2);
 				break;
+			
 			case 3:
 				System.out.println("ingrese la cantidad de camaras");
 				int numero = lector.nextInt();
 				modelo.generarRed(numero);
 				break;
+			
+			case 4:
+				System.out.println("ingrese la latitud inicial");
+				double lat = Double.parseDouble(lector.next());
+				System.out.println("Ingerese la lng inicial");
+				double lng = Double.parseDouble(lector.next());
+				System.out.println("ingrese la latitud final");
+				double latfin = Double.parseDouble(lector.next());
+				System.out.println("Ingerese la lng final");
+				double lngfin = Double.parseDouble(lector.next());
+				modelo.ObtenerCostoMinimoMultas(lat, lng, latfin, lngfin);
+				break;
+			case 5:
+				System.out.println("digite la cantidad de vertices");
+				int numerito = Integer.parseInt(lector.next());
+				System.out.println("Generando red");
+				modelo.generarRed2(numerito);
+				break;
+				
 
 
 
 
 			default: 
 				view.printMessage("--------- \n Opcion Invalida !! \n---------");
+				run();
 				break;
 			}
 		}

@@ -9,7 +9,7 @@ public class ComparadorEdges implements Comparator<Edge> {
 	@Override
 	public int compare(Edge arg0, Edge arg1) {
 		// TODO Auto-generated method stub
-		return arg0.getMultas() - arg1.getMultas();
+		return (int) (arg0.getMultas() - arg1.getMultas());
 	}
 
 }

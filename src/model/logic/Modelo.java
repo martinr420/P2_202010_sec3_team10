@@ -595,8 +595,52 @@ public class Modelo {
 		}	
 	}
 	
-	public void generarRed2()
+	public void generarRed2(int m)
 	{
+		GrafoNoDirigido<Interseccion> mst = grafo.mst();
+		System.out.println("generando red");
+		long ini = System.currentTimeMillis();
+		double costoMonetario = 0;
+		Interseccion[] intersecciones = new Interseccion[m];
+	
+		Mapa map = new Mapa("Red");
+		for(int i = 0; i < m; i+=2)
+		{
+			Interseccion from = maxPQIntersecciones.delMax();
+			Interseccion to = maxPQIntersecciones.delMax();
+			intersecciones[i] = from;
+			intersecciones[i+1] = to;
+			System.out.println("Verice " + from.getKey() + " Con un total de multas de: " + from.darComparendos().size());
+			costoMonetario += mst.distancia(from, to);
+			Iterator<Interseccion> iter = mst.caminoMasCorto(from, to).iterator();
+			Queue<Interseccion> lista = new Queue<>();
+			while(iter.hasNext())
+			{
+				lista.enqueue(iter.next());
+			}
+			LatLng[] camino = new LatLng[lista.size() / 2];
+			while(lista.size() >= 2)
+			{
+
+				Interseccion ori = lista.dequeue();
+				double latfrom = ori.getLat();
+				double lngfrom = ori.getLng();
+				camino[i] = new LatLng(latfrom, lngfrom);
+
+				lista.dequeue();
+			}
+		
+			
+			map.GenerateLine(false, camino);	
+		}
+		for(Interseccion i : intersecciones)
+		{
+			maxPQIntersecciones.insert(i);
+		}
+	
+		System.out.println("El cosot monetario es: " + costoMonetario*10000);
+		long fin = System.currentTimeMillis();
+		System.out.println("Tiempo: " + (fin-ini));
 		
 	}
 

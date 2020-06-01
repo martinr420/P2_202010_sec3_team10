@@ -145,7 +145,7 @@ public class Mapa extends MapView{
 					mapOptions.setMapTypeControlOptions(controlOptions);
 					
 					map.setOptions(mapOptions);
-					map.setCenter(new LatLng(42.045527, -88.037659));
+					map.setCenter(new LatLng(4.662362, -74.057021));
 					map.setZoom(10);
 
 				}
