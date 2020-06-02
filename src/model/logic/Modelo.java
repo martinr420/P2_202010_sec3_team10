@@ -619,13 +619,14 @@ public class Modelo {
 				lista.enqueue(iter.next());
 			}
 			LatLng[] camino = new LatLng[lista.size() / 2];
+			int j = 0;
 			while(lista.size() >= 2)
 			{
 
 				Interseccion ori = lista.dequeue();
 				double latfrom = ori.getLat();
 				double lngfrom = ori.getLng();
-				camino[i] = new LatLng(latfrom, lngfrom);
+				camino[j++] = new LatLng(latfrom, lngfrom);
 
 				lista.dequeue();
 			}
