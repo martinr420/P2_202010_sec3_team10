@@ -1,6 +1,7 @@
  package model.data_structures;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 
 import edu.princeton.cs.algs4.BoruvkaMST;
 import edu.princeton.cs.algs4.CC;
@@ -186,8 +187,10 @@ public class GrafoNoDirigido <K>
 		int hasta = llaveAEntero.get(to);
 		DijkstraUndirectedSP djk = new DijkstraUndirectedSP(grafo, desde, false);
 		Iterable<Edge> q = djk.pathTo(hasta);
-		for(Edge e: q )
-		{
+		Iterator<Edge> iter = q.iterator();
+		while(iter.hasNext())
+		{		
+			Edge e = iter.next();
 			String[] datos = e.toString().split(":");
 			int iFrom = Integer.parseInt(datos[0]);
 			K origen = enteroALlave.get(iFrom);
@@ -196,9 +199,7 @@ public class GrafoNoDirigido <K>
 			K destino = enteroALlave.get(iTo);
 			
 			llaves.enqueue(origen);
-			llaves.enqueue(destino);
-			
-			
+			llaves.enqueue(destino);	
 		}
 		return llaves;
 	}
